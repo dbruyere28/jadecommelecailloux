@@ -574,7 +574,6 @@ export default function AdminPage() {
                                   onChange={e => setImageUrl(e.target.value)}
                                   placeholder="https://res.cloudinary.com/... ou https://..."
                                   className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                  placeholder="https://res.cloudinary.com/..."
                                 />
                                 <Button type="button" onClick={handleImageUrl} variant="primary">
                                   Ajouter
