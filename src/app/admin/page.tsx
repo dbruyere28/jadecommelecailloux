@@ -30,6 +30,7 @@ export default function AdminPage() {
     year: 2024,
     category: '',
     tags: '',
+    cloudinaryPublicId: '',
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -74,40 +75,59 @@ export default function AdminPage() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Veuillez sélectionner une image valide');
-        return;
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner une image valide');
+      return;
+    }
+
+    // Hard limit at 10MB (Cloudinary limit)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('L\'image ne doit pas dépasser 10 Mo');
+      return;
+    }
+
+    // Show uploading state
+    setSaveError('Upload de l\'image vers Cloudinary...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erreur lors de l\'upload');
       }
-      // Warn about file size (base64 increases size by ~33%)
-      if (file.size > 2 * 1024 * 1024) {
-        if (!confirm('Attention : cette image fait plus de 2 Mo. En base64 elle dépassera la limite de stockage local (~5 Mo). Continuer ?')) {
-          return;
-        }
-      }
-      // Hard limit at 5MB
-      if (file.size > 5 * 1024 * 1024) {
-        alert('L\'image ne doit pas dépasser 5 Mo');
-        return;
-      }
-      
+
+      // Success - update form with Cloudinary URL
       setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        setFormData(prev => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      setImagePreview(result.url);
+      setFormData(prev => ({ 
+        ...prev, 
+        image: result.url,
+        cloudinaryPublicId: result.publicId || '',
+      }));
+      setSaveError(null);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setSaveError(err instanceof Error ? err.message : 'Erreur lors de l\'upload');
     }
   };
 
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setFormData(prev => ({ ...prev, image: '' }));
+    setFormData(prev => ({ ...prev, image: '', cloudinaryPublicId: '' }));
   };
 
   const handleLogout = () => {
@@ -130,6 +150,7 @@ export default function AdminPage() {
       year: new Date().getFullYear(),
       category: '',
       tags: '',
+      cloudinaryPublicId: '',
     });
     setImagePreview(null);
     setImageFile(null);
@@ -173,6 +194,7 @@ export default function AdminPage() {
       year: formData.year,
       category: formData.category || undefined,
       tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+      cloudinaryPublicId: formData.cloudinaryPublicId || undefined,
     };
 
     const updatedArtworks = editingArtwork
@@ -213,14 +235,31 @@ export default function AdminPage() {
       year: artwork.year,
       category: artwork.category || '',
       tags: artwork.tags?.join(', ') || '',
+      cloudinaryPublicId: artwork.cloudinaryPublicId || '',
     });
     setImagePreview(artwork.image);
     setImageFile(null);
     setShowForm(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ?')) {
+      // Find the artwork to get cloudinaryPublicId
+      const artworkToDelete = allArtworks.find(a => a.id === id);
+      const cloudinaryPublicId = artworkToDelete?.cloudinaryPublicId;
+
+      // Delete from Cloudinary if there's a publicId
+      if (cloudinaryPublicId) {
+        try {
+          await fetch(`/api/delete-image?publicId=${encodeURIComponent(cloudinaryPublicId)}`, {
+            method: 'DELETE',
+          });
+        } catch (err) {
+          console.error('Erreur suppression Cloudinary:', err);
+          // Continue with deletion even if Cloudinary fails
+        }
+      }
+
       const isStatic = artworks.some(a => a.id === id);
       if (isStatic) {
         // Mark static artwork as deleted
@@ -452,7 +491,7 @@ export default function AdminPage() {
                                 {imagePreview || editingArtwork ? 'Changer l\'image' : 'Glissez-déposez ou cliquez pour importer'}
                               </p>
                               <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                                PNG, JPG, WebP · Max 5 Mo
+                                PNG, JPG, WebP · Max 10 Mo (Cloudinary)
                               </p>
                             </div>
                           </label>
