@@ -2,7 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, Edit, Trash2, Plus, Save, X, Loader2, Image as ImageIcon, Hash } from 'lucide-react';
+import { Eye, Edit, Trash2, Plus, Save, X, Loader2, Image as ImageIcon, Hash, Upload, FileImage } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { artworks } from '@/data/artworks';
 import { Artwork, ArtworkFormData } from '@/types/artwork';
@@ -30,6 +30,8 @@ export default function AdminPage() {
     category: '',
     tags: '',
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
 
@@ -60,6 +62,36 @@ export default function AdminPage() {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Veuillez sélectionner une image valide');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('L\'image ne doit pas dépasser 5 Mo');
+        return;
+      }
+      
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        setFormData(prev => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: '' }));
+  };
+
   const handleLogout = () => {
     setIsAuthenticated(false);
     setPassword('');
@@ -81,6 +113,8 @@ export default function AdminPage() {
       category: '',
       tags: '',
     });
+    setImagePreview(null);
+    setImageFile(null);
     setEditingArtwork(null);
     setShowForm(false);
   };
@@ -133,6 +167,8 @@ export default function AdminPage() {
       category: artwork.category || '',
       tags: artwork.tags?.join(', ') || '',
     });
+    setImagePreview(artwork.image);
+    setImageFile(null);
     setShowForm(true);
   };
 
@@ -200,10 +236,6 @@ export default function AdminPage() {
               Accéder à l'administration
             </Button>
           </form>
-
-          <p className="mt-6 text-xs text-zinc-400 dark:text-zinc-500 text-center">
-            Mot de passe de démo : <code className="bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded font-mono">galerie2024</code>
-          </p>
         </motion.div>
 
         <style jsx global>{`
@@ -310,17 +342,49 @@ export default function AdminPage() {
 
                       <div>
                         <label htmlFor="image" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                          URL de l'image *
+                          Image de l'œuvre *
                         </label>
-                        <input
-                          id="image"
-                          type="url"
-                          value={formData.image}
-                          onChange={e => setFormData({ ...formData, image: e.target.value })}
-                          required
-                          placeholder="https://..."
-                          className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        />
+                        <div className="space-y-3">
+                          {imagePreview && (
+                            <div className="relative group">
+                              <img
+                                src={imagePreview}
+                                alt="Aperçu"
+                                className="w-32 h-32 object-cover rounded-xl border border-zinc-200 dark:border-zinc-700"
+                              />
+                              <button
+                                type="button"
+                                onClick={removeImage}
+                                className="absolute -top-2 -right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                aria-label="Supprimer l'image"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                          <label className="flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors">
+                            <input
+                              id="image"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              required={!editingArtwork && !imagePreview}
+                            />
+                            <div className="flex flex-col items-center gap-2 p-6 text-center">
+                              <Upload className="w-10 h-10 text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
+                              <p className="text-zinc-600 dark:text-zinc-400">
+                                {imagePreview || editingArtwork ? 'Changer l\'image' : 'Glissez-déposez ou cliquez pour importer'}
+                              </p>
+                              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                                PNG, JPG, WebP · Max 5 Mo
+                              </p>
+                            </div>
+                          </label>
+                          {!imagePreview && !editingArtwork && (
+                            <p className="text-red-500 text-sm text-center">Une image est requise</p>
+                          )}
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
