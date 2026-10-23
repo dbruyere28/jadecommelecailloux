@@ -60,7 +60,7 @@ export function Contact() {
             votre propre rencontre avec la féerie, la porte est ouverte.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-6 w-full max-w-lg mx-auto">
+          <div className="grid sm:grid-cols-[max-content_1fr] gap-6 w-full max-w-2xl mx-auto">
             <a
               href="mailto:jade.bourneuf.art@gmail.com"
               className="group flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
@@ -68,9 +68,9 @@ export function Contact() {
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
                 <Mail className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div>
+              <div className="whitespace-nowrap">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Par la poste des hiboux</p>
-                <p className="text-zinc-900 dark:text-white font-medium break-words">jade.bourneuf.art@gmail.com</p>
+                <p className="text-zinc-900 dark:text-white font-medium">jade.bourneuf.art@gmail.com</p>
               </div>
             </a>
 
@@ -78,7 +78,7 @@ export function Contact() {
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 flex-shrink-0">
                 <MapPin className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div>
+              <div className="whitespace-nowrap">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Atelier</p>
                 <p className="text-zinc-900 dark:text-white font-medium break-words">Lisière de la forêt de Brocéliande</p>
               </div>
