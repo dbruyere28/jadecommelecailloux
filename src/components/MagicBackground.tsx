@@ -38,7 +38,7 @@ export function MagicBackground() {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const timeRef = useRef(0);
 
   const colors = [
