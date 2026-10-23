@@ -19,7 +19,8 @@ export async function GET(request: Request) {
     return new Response('Artwork not available for purchase', { status: 400 });
   }
 
-  const stripePriceId = process.env.STRIPE_PRICE_ID_MAP?.[artworkId];
+  const priceIdMap = process.env.STRIPE_PRICE_ID_MAP ? JSON.parse(process.env.STRIPE_PRICE_ID_MAP) : {};
+  const stripePriceId = priceIdMap[artworkId];
 
   if (!stripePriceId) {
     console.warn(`No Stripe Price ID configured for artwork ${artworkId}`);

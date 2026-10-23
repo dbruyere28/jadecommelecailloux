@@ -117,7 +117,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                   'object-contain transition-opacity duration-500',
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 )}
-                onLoad={setImageLoaded}
+                onLoad={() => setImageLoaded(true)}
                 sizes="50vw"
               />
             </div>

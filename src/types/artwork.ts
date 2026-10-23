@@ -28,5 +28,5 @@ export interface ArtworkFormData {
   status: 'available' | 'sold' | 'reserved';
   year: number;
   category?: string;
-  tags?: string[];
+  tags: string; // comma-separated string for form input
 }
