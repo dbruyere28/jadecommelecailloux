@@ -172,7 +172,6 @@ export function MagicBackground() {
       sparklesRef.current = Array.from({ length: 15 }, () => createSparkle(width, height));
     }
 
-    const ctx = canvasRef.current.getContext('2d')!;
     let gradientTime = 0;
 
     const animate = (timestamp: number) => {
