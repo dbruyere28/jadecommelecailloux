@@ -24,6 +24,14 @@ interface Sparkle {
   color: string;
 }
 
+interface SparkleConfig {
+  x: string;
+  y: string;
+  delay: number;
+  duration: number;
+  size: number;
+}
+
 export function MagicBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -246,13 +254,24 @@ export function FloatingOrbs() {
 }
 
 export function FloatingSparkles() {
-  const sparkles = Array.from({ length: 20 }, (_, i) => ({
-    x: `${Math.random() * 90 + 5}%`,
-    y: `${Math.random() * 90 + 5}%`,
-    delay: Math.random() * 3,
-    duration: 2 + Math.random() * 3,
-    size: Math.random() * 4 + 2,
-  }));
+  const [sparkles, setSparkles] = useState<SparkleConfig[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const newSparkles: SparkleConfig[] = Array.from({ length: 20 }, (_, i) => ({
+      x: `${Math.random() * 90 + 5}%`,
+      y: `${Math.random() * 90 + 5}%`,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 3,
+      size: Math.random() * 4 + 2,
+    }));
+    setSparkles(newSparkles);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
