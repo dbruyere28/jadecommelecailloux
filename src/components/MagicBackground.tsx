@@ -32,6 +32,50 @@ interface SparkleConfig {
   size: number;
 }
 
+const PARTICLE_COUNT = 40;
+const SPARKLE_COUNT = 15;
+
+const PARTICLE_COLORS = [
+  'rgba(110, 231, 183, 0.6)',
+  'rgba(167, 139, 250, 0.5)',
+  'rgba(251, 191, 36, 0.5)',
+  'rgba(56, 189, 248, 0.4)',
+  'rgba(244, 114, 182, 0.4)',
+];
+
+const SPARKLE_COLORS = [
+  '#fde047',
+  '#f472b6',
+  '#a78bfa',
+  '#6ee7b7',
+  '#ffffff',
+];
+
+function createParticle(width: number, height: number): Particle {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 3 + 1,
+    opacity: Math.random() * 0.4 + 0.1,
+    speedX: (Math.random() - 0.5) * 0.3,
+    speedY: (Math.random() - 0.5) * 0.3 - 0.1,
+    color: PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+    delay: Math.random() * Math.PI * 2,
+  };
+}
+
+function createSparkle(width: number, height: number): Sparkle {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 4 + 2,
+    opacity: 0,
+    rotation: Math.random() * Math.PI * 2,
+    scale: 0,
+    color: SPARKLE_COLORS[Math.floor(Math.random() * SPARKLE_COLORS.length)],
+  };
+}
+
 export function MagicBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(0);
@@ -41,22 +85,6 @@ export function MagicBackground() {
   const particlesRef = useRef<Particle[]>([]);
   const sparklesRef = useRef<Sparkle[]>([]);
 
-  const colors = [
-    'rgba(110, 231, 183, 0.6)',   // emerald
-    'rgba(167, 139, 250, 0.5)',   // violet
-    'rgba(251, 191, 36, 0.5)',    // amber
-    'rgba(56, 189, 248, 0.4)',    // sky
-    'rgba(244, 114, 182, 0.4)',   // pink
-  ];
-
-  const sparkleColors = [
-    '#fde047', // amber-300
-    '#f472b6', // pink-400
-    '#a78bfa', // violet-400
-    '#6ee7b7', // emerald-300
-    '#ffffff',
-  ];
-
   // Initialize particles when width/height are available
   useEffect(() => {
     if (!canvasRef.current || width === 0 || height === 0) return;
@@ -64,30 +92,8 @@ export function MagicBackground() {
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
-    // Initialize particles
-    const newParticles: Particle[] = Array.from({ length: 40 }, (_, i) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.4 + 0.1,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.3 - 0.1,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * Math.PI * 2,
-    });
-
-    const newSparkles: Sparkle[] = Array.from({ length: 15 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 4 + 2,
-      opacity: 0,
-      rotation: Math.random() * Math.PI * 2,
-      scale: 0,
-      color: sparkleColors[Math.floor(Math.random() * sparkleColors.length)],
-    });
-
-    particlesRef.current = newParticles;
-    sparklesRef.current = newSparkles;
+    particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => createParticle(width, height));
+    sparklesRef.current = Array.from({ length: SPARKLE_COUNT }, () => createSparkle(width, height));
   }, [width, height]);
 
   // Handle resize
@@ -149,11 +155,11 @@ export function MagicBackground() {
       ctx.fillRect(0, 0, width, height);
 
       // Update and draw particles (using refs, not React state)
-      particlesRef.current = particlesRef.current.map(p => {
+      particlesRef.current = particlesRef.current.map((p) => {
         const t = timeRef.current + p.delay;
         const newX = p.x + Math.sin(t * 0.5) * 20 + p.speedX * 10;
         const newY = p.y + Math.cos(t * 0.3) * 15 + p.speedY * 10 - t * 5;
-        
+
         // Wrap around
         let wrappedX = newX;
         let wrappedY = newY;
@@ -204,7 +210,11 @@ export function MagicBackground() {
     };
 
     animationRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationRef.current!);
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
   }, [width, height]);
 
   // Set canvas dimensions
