@@ -34,13 +34,12 @@ interface SparkleConfig {
 
 export function MagicBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
   const animationRef = useRef<number | null>(null);
   const timeRef = useRef(0);
-  const initializedRef = useRef(false);
+  const particlesRef = useRef<Particle[]>([]);
+  const sparklesRef = useRef<Sparkle[]>([]);
 
   const colors = [
     'rgba(110, 231, 183, 0.6)',   // emerald
@@ -60,7 +59,7 @@ export function MagicBackground() {
 
   // Initialize particles when width/height are available
   useEffect(() => {
-    if (!canvasRef.current || width === 0 || height === 0 || initializedRef.current) return;
+    if (!canvasRef.current || width === 0 || height === 0) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -75,7 +74,7 @@ export function MagicBackground() {
       speedY: (Math.random() - 0.5) * 0.3 - 0.1,
       color: colors[Math.floor(Math.random() * colors.length)],
       delay: Math.random() * Math.PI * 2,
-    }));
+    });
 
     const newSparkles: Sparkle[] = Array.from({ length: 15 }, () => ({
       x: Math.random() * width,
@@ -85,11 +84,10 @@ export function MagicBackground() {
       rotation: Math.random() * Math.PI * 2,
       scale: 0,
       color: sparkleColors[Math.floor(Math.random() * sparkleColors.length)],
-    }));
+    });
 
-    setParticles(newParticles);
-    setSparkles(newSparkles);
-    initializedRef.current = true;
+    particlesRef.current = newParticles;
+    sparklesRef.current = newSparkles;
   }, [width, height]);
 
   // Handle resize
@@ -111,9 +109,9 @@ export function MagicBackground() {
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  // Animation loop
+  // Animation loop - runs continuously without React state updates
   useEffect(() => {
-    if (!canvasRef.current || width === 0 || height === 0 || particles.length === 0) return;
+    if (!canvasRef.current || width === 0 || height === 0) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -150,8 +148,8 @@ export function MagicBackground() {
       ctx.fillStyle = gradient3;
       ctx.fillRect(0, 0, width, height);
 
-      // Update and draw particles
-      setParticles(prev => prev.map(p => {
+      // Update and draw particles (using refs, not React state)
+      particlesRef.current = particlesRef.current.map(p => {
         const t = timeRef.current + p.delay;
         const newX = p.x + Math.sin(t * 0.5) * 20 + p.speedX * 10;
         const newY = p.y + Math.cos(t * 0.3) * 15 + p.speedY * 10 - t * 5;
@@ -173,10 +171,10 @@ export function MagicBackground() {
         ctx.globalAlpha = 1;
 
         return { ...p, x: wrappedX, y: wrappedY };
-      }));
+      });
 
       // Update and draw sparkles
-      setSparkles(prev => prev.map((s, i) => {
+      sparklesRef.current = sparklesRef.current.map((s, i) => {
         const t = timeRef.current;
         const phase = (t * 0.5 + i * 0.7) % (Math.PI * 2);
         const newScale = Math.sin(phase) * 0.5 + 0.5;
@@ -200,14 +198,14 @@ export function MagicBackground() {
         ctx.restore();
 
         return { ...s, scale: newScale, opacity: newOpacity };
-      }));
+      });
 
       animationRef.current = requestAnimationFrame(animate);
     };
 
     animationRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationRef.current!);
-  }, [particles, sparkles, width, height]);
+  }, [width, height]);
 
   // Set canvas dimensions
   useEffect(() => {

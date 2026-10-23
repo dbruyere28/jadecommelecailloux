@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { RefreshCw, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { About } from '@/components/About';
@@ -11,6 +12,7 @@ import { GalleryGrid } from '@/components/gallery/GalleryGrid';
 import { ArtworkModal } from '@/components/gallery/ArtworkModal';
 import { artworks, getAvailableArtworks } from '@/data/artworks';
 import { Artwork } from '@/types/artwork';
+import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'artworks_catalog';
 const DELETED_KEY = 'artworks_deleted';
@@ -19,8 +21,10 @@ export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadArtworks = useCallback(() => {
+    setIsLoading(true);
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
@@ -28,7 +32,10 @@ export default function Home() {
       } catch {
         setLocalArtworks([]);
       }
+    } else {
+      setLocalArtworks([]);
     }
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -57,6 +64,10 @@ export default function Home() {
     if (selectedArtwork) {
       window.location.href = `/api/checkout?artworkId=${selectedArtwork.id}`;
     }
+  };
+
+  const handleRefreshGallery = () => {
+    loadArtworks();
   };
 
   return (
@@ -89,18 +100,67 @@ export default function Home() {
               </p>
             </motion.div>
 
-            <GalleryGrid
-              artworks={availableArtworks}
-              onArtworkClick={handleArtworkClick}
-              className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {availableArtworks.length} œuvre{availableArtworks.length > 1 ? 's' : ''} disponible{availableArtworks.length > 1 ? 's' : ''}
+              </p>
+              <button
+                onClick={handleRefreshGallery}
+                disabled={isLoading}
+                className={cn(
+                  'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors',
+                  'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300',
+                  'hover:bg-zinc-200 dark:hover:bg-zinc-700',
+                  'disabled:opacity-50 disabled:cursor-not-allowed'
+                )}
+                aria-label="Rafraîchir la galerie"
+              >
+                <Loader2 className={cn('w-4 h-4', isLoading && 'animate-spin')} aria-hidden="true" />
+                <RefreshCw className="w-4 h-4" aria-hidden="true" />
+                Rafraîchir
+              </button>
+            </div>
 
-            {availableArtworks.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-zinc-500 dark:text-zinc-400 text-lg">
-                  Aucune œuvre disponible pour le moment. Revenez bientôt pour découvrir les nouvelles créations.
-                </p>
+            {isLoading ? (
+              <div className="grid gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" role="list" aria-label="Galerie d'œuvres">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="animate-pulse" role="listitem">
+                    <div className="aspect-[4/3] rounded-xl bg-zinc-200 dark:bg-zinc-700" />
+                    <div className="mt-4 space-y-2">
+                      <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4" />
+                      <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2" />
+                      <div className="flex items-center justify-between">
+                        <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-20" />
+                        <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-24" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <>
+                <GalleryGrid
+                  artworks={availableArtworks}
+                  onArtworkClick={handleArtworkClick}
+                  className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                />
+
+                {availableArtworks.length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-lg mb-4">
+                      Aucune œuvre disponible pour le moment.
+                    </p>
+                    <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-6">
+                      Les œuvres sont gérées localement dans votre navigateur.
+                    </p>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                      Ajoutez vos œuvres via l'
+                      <a href="/admin" className="underline hover:text-emerald-500">administration</a>
+                      {' '}ou rafraîchissez la galerie après en avoir ajouté.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </section>
