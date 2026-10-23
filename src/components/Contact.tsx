@@ -30,7 +30,7 @@ export function Contact() {
             votre propre rencontre avec la féerie, la porte est ouverte.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-6 max-w-md mx-auto">
+          <div className="grid sm:grid-cols-[max-content_1fr] gap-6 w-full max-w-lg mx-auto">
             <a
               href="mailto:jade.bourneuf.art@gmail.com"
               className="group flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left min-w-0"
