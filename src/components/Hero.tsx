@@ -2,22 +2,30 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { MagicBackground, FloatingOrbs, FloatingSparkles } from '@/components/MagicBackground';
 import { cn } from '@/lib/utils';
 
 export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
+      {/* Magical animated background */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="https://images.unsplash.com/photo-1444464666168-49d60a5f0c4a?w=1920&q=80"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
+        <MagicBackground />
+        <FloatingOrbs />
+        <FloatingSparkles />
+        
+        {/* Subtle overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-emerald-900/40 to-amber-950/60" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)]" aria-hidden="true" />
+        
+        {/* Subtle noise texture */}
+        <div 
+          className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+          style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")",
+          }}
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/70 via-emerald-800/40 to-amber-900/70" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)]" aria-hidden="true" />
       </div>
 
       <motion.div
