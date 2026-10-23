@@ -33,7 +33,7 @@ export function Hero() {
           className="inline-block px-6 py-2 mb-8 rounded-full bg-emerald-900/30 backdrop-blur-md border border-emerald-400/30"
         >
           <span className="text-xs font-medium uppercase tracking-widest text-emerald-200">
-            Collection Féerie 2024
+            Collection Féerie 2026
           </span>
         </motion.div>
 

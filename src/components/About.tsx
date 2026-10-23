@@ -40,13 +40,13 @@ export function About() {
 
             <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6 text-lg leading-relaxed">
               <p>
-                Née au creux d'une vallée brumeuse, Jade Bourneuf grandit bercée par les légendes que
-                lui chuchotent les vieux chênes. Très tôt, elle comprend que la peinture n'est pas un art :
+                Née à <strong>Dreux en 2002</strong>, Jade Bourneuf grandit entre les contes de sa grand-mère
+                et les forêts d'Île-de-France. Très tôt, elle comprend que la peinture n'est pas un art :
                 c'est une façon de garder les portes ouvertes entre les mondes.
               </p>
               <p>
                 Son travail naît au carrefour des contes oubliés, de la botanique mystique et des grimoires
-                transmis de mère en fille. Sorcières gardiennes, arbres-mondes, lucioles messagères :
+                transmis de génération en génération. Sorcières gardiennes, arbres-mondes, lucioles messagères :
                 chaque toile est un fragment de cet ailleurs qui frôle notre réalité.
               </p>
               <p>
