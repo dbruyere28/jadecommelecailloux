@@ -1,8 +1,29 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, MapPin, MessageSquare, Link } from 'lucide-react';
+import { Mail, MapPin, Link } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Instagram icon component
+function InstagramIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 export function Contact() {
   return (
@@ -30,25 +51,25 @@ export function Contact() {
             votre propre rencontre avec la féerie, la porte est ouverte.
           </p>
 
-          <div className="grid sm:grid-cols-[max-content_1fr] gap-6 w-full max-w-lg mx-auto">
+          <div className="grid sm:grid-cols-2 gap-6 w-full max-w-lg mx-auto">
             <a
               href="mailto:jade.bourneuf.art@gmail.com"
-              className="group flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left min-w-0"
+              className="group flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
             >
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
                 <Mail className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Par la poste des hiboux</p>
                 <p className="text-zinc-900 dark:text-white font-medium break-words">jade.bourneuf.art@gmail.com</p>
               </div>
             </a>
 
-            <div className="flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 text-left min-w-0">
+            <div className="flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 text-left">
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 flex-shrink-0">
                 <MapPin className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div className="min-w-0">
+              <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Atelier</p>
                 <p className="text-zinc-900 dark:text-white font-medium break-words">Lisière de la forêt de Brocéliande</p>
               </div>
@@ -63,7 +84,7 @@ export function Contact() {
               className="p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all"
               aria-label="Instagram"
             >
-              <MessageSquare className="w-5 h-5" aria-hidden="true" />
+              <InstagramIcon className="w-5 h-5" aria-hidden="true" />
             </a>
             <a
               href="https://linkedin.com"
