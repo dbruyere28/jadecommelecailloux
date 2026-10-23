@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
   const [deletedStaticIds, setDeletedStaticIds] = useState<string[]>([]);
 
@@ -81,7 +82,13 @@ export default function AdminPage() {
         alert('Veuillez sélectionner une image valide');
         return;
       }
-      // Validate file size (max 5MB)
+      // Warn about file size (base64 increases size by ~33%)
+      if (file.size > 2 * 1024 * 1024) {
+        if (!confirm('Attention : cette image fait plus de 2 Mo. En base64 elle dépassera la limite de stockage local (~5 Mo). Continuer ?')) {
+          return;
+        }
+      }
+      // Hard limit at 5MB
       if (file.size > 5 * 1024 * 1024) {
         alert('L\'image ne doit pas dépasser 5 Mo');
         return;
@@ -133,8 +140,24 @@ export default function AdminPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Validate required fields
+    if (!formData.title.trim()) {
+      setSaveError('Le titre est obligatoire');
+      setSaving(false);
+      return;
+    }
+    if (!formData.image) {
+      setSaveError('Une image est obligatoire');
+      setSaving(false);
+      return;
+    }
+    if (formData.width <= 0 || formData.height <= 0) {
+      setSaveError('Les dimensions doivent être supérieures à 0');
+      setSaving(false);
+      return;
+    }
 
     const newArtwork: Artwork = {
       id: editingArtwork?.id || `art_${Date.now()}`,
@@ -156,14 +179,24 @@ export default function AdminPage() {
       ? localArtworks.map(a => a.id === editingArtwork.id ? newArtwork : a)
       : [newArtwork, ...localArtworks];
 
-    setLocalArtworks(updatedArtworks);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedArtworks));
-    
-    // Dispatch storage event for other tabs/pages
-    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
-    
-    resetForm();
-    setSaving(false);
+    try {
+      setLocalArtworks(updatedArtworks);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedArtworks));
+      
+      // Dispatch storage event for other tabs/pages
+      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+      
+      resetForm();
+    } catch (err) {
+      console.error('Erreur sauvegarde:', err);
+      if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+        setSaveError('L\'image est trop volumineuse pour le stockage local. Réduisez la taille de l\'image (max ~1-2 Mo recommandé).');
+      } else {
+        setSaveError('Erreur lors de la sauvegarde. Réessayez.');
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (artwork: Artwork) => {
@@ -554,16 +587,22 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                    <Button type="button" variant="secondary" onClick={resetForm}>
-                      Annuler
-                    </Button>
-                    <Button type="submit" loading={saving}>
-                      <Save className="w-4 h-4 mr-2" aria-hidden="true" />
-                      {editingArtwork ? 'Mettre à jour' : 'Créer'}
-                    </Button>
-                  </div>
-                </form>
+                    {saveError && (
+                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm" role="alert">
+                        {saveError}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                      <Button type="button" variant="secondary" onClick={resetForm}>
+                        Annuler
+                      </Button>
+                      <Button type="submit" loading={saving}>
+                        <Save className="w-4 h-4 mr-2" aria-hidden="true" />
+                        {editingArtwork ? 'Mettre à jour' : 'Créer'}
+                      </Button>
+                    </div>
+                  </form>
               </div>
             </motion.div>
           )}

@@ -40,6 +40,7 @@ export function MagicBackground() {
   const [height, setHeight] = useState(0);
   const animationRef = useRef<number | null>(null);
   const timeRef = useRef(0);
+  const initializedRef = useRef(false);
 
   const colors = [
     'rgba(110, 231, 183, 0.6)',   // emerald
@@ -57,26 +58,9 @@ export function MagicBackground() {
     '#ffffff',
   ];
 
+  // Initialize particles when width/height are available
   useEffect(() => {
-    const resize = () => {
-      if (canvasRef.current) {
-        const rect = canvasRef.current.parentElement?.getBoundingClientRect();
-        if (rect) {
-          setWidth(rect.width);
-          setHeight(rect.height);
-          canvasRef.current.width = rect.width * window.devicePixelRatio;
-          canvasRef.current.height = rect.height * window.devicePixelRatio;
-        }
-      }
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, []);
-
-  useEffect(() => {
-    if (!canvasRef.current || width === 0 || height === 0) return;
+    if (!canvasRef.current || width === 0 || height === 0 || initializedRef.current) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -105,10 +89,31 @@ export function MagicBackground() {
 
     setParticles(newParticles);
     setSparkles(newSparkles);
+    initializedRef.current = true;
   }, [width, height]);
 
+  // Handle resize
   useEffect(() => {
-    if (!canvasRef.current) return;
+    const resize = () => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.parentElement?.getBoundingClientRect();
+        if (rect) {
+          setWidth(rect.width);
+          setHeight(rect.height);
+          canvasRef.current.width = rect.width * window.devicePixelRatio;
+          canvasRef.current.height = rect.height * window.devicePixelRatio;
+        }
+      }
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+
+  // Animation loop
+  useEffect(() => {
+    if (!canvasRef.current || width === 0 || height === 0 || particles.length === 0) return;
 
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
@@ -204,6 +209,25 @@ export function MagicBackground() {
     return () => cancelAnimationFrame(animationRef.current!);
   }, [particles, sparkles, width, height]);
 
+  // Set canvas dimensions
+  useEffect(() => {
+    const resize = () => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.parentElement?.getBoundingClientRect();
+        if (rect) {
+          setWidth(rect.width);
+          setHeight(rect.height);
+          canvasRef.current.width = rect.width * window.devicePixelRatio;
+          canvasRef.current.height = rect.height * window.devicePixelRatio;
+        }
+      }
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+
   return (
     <canvas
       ref={canvasRef}
@@ -251,6 +275,14 @@ export function FloatingOrbs() {
       ))}
     </>
   );
+}
+
+interface SparkleConfig {
+  x: string;
+  y: string;
+  delay: number;
+  duration: number;
+  size: number;
 }
 
 export function FloatingSparkles() {
