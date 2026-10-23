@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { MagicBackground, FloatingOrbs, FloatingSparkles } from '@/components/MagicBackground';
+import { MagicBackground, FloatingOrbs, FloatingSparkles, GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
 import { cn } from '@/lib/utils';
 
 export function Hero() {
@@ -32,77 +32,77 @@ export function Hero() {
         className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-          className="inline-block px-6 py-2 mb-8 rounded-full bg-emerald-900/30 backdrop-blur-md border border-emerald-400/30"
-        >
-          <span className="text-xs font-medium uppercase tracking-widest text-emerald-200">
-            Collection Féerie 2026
+        <FloatIn direction="down" delay={0.2} className="mb-8">
+          <span className="inline-block px-6 py-2 mb-8 rounded-full bg-emerald-900/30 backdrop-blur-md border border-emerald-400/30">
+            <span className="text-xs font-medium uppercase tracking-widest text-emerald-200">
+              Collection Féerie 2026
+            </span>
           </span>
-        </motion.div>
+        </FloatIn>
 
-        <motion.h1
-          id="hero-title"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
-          className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-8 leading-[1.1]"
-        >
-          Là où
-          <br />
-          <span className="font-medium text-emerald-200">la forêt rêve</span>
-        </motion.h1>
+        <StaggerContainer delay={0.4} stagger={0.15} className="mb-8">
+          <StaggerItem>
+            <motion.h1
+              id="hero-title"
+              className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-8 leading-[1.1]"
+            >
+              Là où
+              <br />
+              <GradientText delay={0.1}>la forêt rêve</GradientText>
+            </motion.h1>
+          </StaggerItem>
+        </StaggerContainer>
 
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.8, ease: 'easeOut' }}
-          className="text-lg sm:text-xl lg:text-2xl font-light text-white/90 max-w-2xl mx-auto mb-12 leading-relaxed"
-        >
-          Entre les branches, <span className="font-medium text-amber-200">la magie veille</span>.
-          <br />
-          Chaque toile ouvre un passage vers l'invisible.
-        </motion.p>
+        <FloatIn direction="up" delay={0.7} className="mb-12">
+          <motion.p className="text-lg sm:text-xl lg:text-2xl font-light text-white/90 max-w-2xl mx-auto mb-12 leading-relaxed">
+            Entre les branches, <span className="font-medium text-amber-200">la magie veille</span>.
+            <br />
+            Chaque toile ouvre un passage vers l'invisible.
+          </motion.p>
+        </FloatIn>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.8, ease: 'easeOut' }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <a
-            href="#gallery"
-            className="group px-8 py-4 bg-white text-emerald-900 font-medium rounded-xl hover:bg-emerald-50 transition-colors shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2"
-          >
-            Entrer dans la galerie
-            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4-4 4m-6-12l4 4-4 4M6 12h18" />
-            </svg>
-          </a>
-          <a
-            href="#about"
-            className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-medium rounded-xl border border-emerald-400/30 hover:bg-emerald-400/20 transition-colors flex items-center justify-center gap-2"
-          >
-            Connaître l'artiste
-          </a>
-        </motion.div>
+        <StaggerContainer delay={0.9} stagger={0.2} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <StaggerItem>
+            <a
+              href="#gallery"
+              className="group px-8 py-4 bg-white text-emerald-900 font-medium rounded-xl hover:bg-emerald-50 transition-colors shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Entrer dans la galerie
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4-4 4m-6-12l4 4-4 4M6 12h18" />
+              </svg>
+            </a>
+          </StaggerItem>
+          <StaggerItem>
+            <a
+              href="#about"
+              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-medium rounded-xl border border-emerald-400/30 hover:bg-emerald-400/20 transition-colors flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.02, borderColor: '#fde047' }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Connaître l'artiste
+            </a>
+          </StaggerItem>
+        </StaggerContainer>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"
-        aria-hidden="true"
-      >
-        <svg className="w-6 h-6 text-emerald-200/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <FloatIn direction="up" delay={1.4} className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <motion.svg 
+          className="w-6 h-6 text-emerald-200/50" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          aria-hidden="true"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </motion.div>
+        </motion.svg>
+      </FloatIn>
     </section>
   );
 }
