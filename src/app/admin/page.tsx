@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'artworks_catalog';
 const DELETED_KEY = 'artworks_deleted';
-const ADMIN_PASSWORD = 'Dreux28100';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -66,12 +65,26 @@ export default function AdminPage() {
     ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))
   ];
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setPasswordError(false);
-    } else {
+    
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsAuthenticated(true);
+        setPasswordError(false);
+      } else {
+        setPasswordError(true);
+        setTimeout(() => setPasswordError(false), 2000);
+      }
+    } catch {
       setPasswordError(true);
       setTimeout(() => setPasswordError(false), 2000);
     }
