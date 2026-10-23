@@ -152,13 +152,16 @@ export default function AdminPage() {
       tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
     };
 
-    if (editingArtwork) {
-      setLocalArtworks(prev => prev.map(a => a.id === editingArtwork.id ? newArtwork : a));
-    } else {
-      setLocalArtworks(prev => [newArtwork, ...prev]);
-    }
+    const updatedArtworks = editingArtwork
+      ? localArtworks.map(a => a.id === editingArtwork.id ? newArtwork : a)
+      : [newArtwork, ...localArtworks];
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(localArtworks));
+    setLocalArtworks(updatedArtworks);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedArtworks));
+    
+    // Dispatch storage event for other tabs/pages
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+    
     resetForm();
     setSaving(false);
   };
@@ -191,15 +194,15 @@ export default function AdminPage() {
         setDeletedStaticIds(prev => {
           const updated = [...prev, id];
           localStorage.setItem(DELETED_KEY, JSON.stringify(updated));
+          window.dispatchEvent(new StorageEvent('storage', { key: DELETED_KEY }));
           return updated;
         });
       } else {
         // Remove from localStorage artworks
-        setLocalArtworks(prev => {
-          const updated = prev.filter(a => a.id !== id);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-          return updated;
-        });
+        const updated = localArtworks.filter(a => a.id !== id);
+        setLocalArtworks(updated);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
       }
     }
   };
@@ -213,20 +216,17 @@ export default function AdminPage() {
     const isStatic = artworks.some(a => a.id === artwork.id);
     if (isStatic) {
       // Create a local copy with updated status (overrides static)
-      setLocalArtworks(prev => {
-        const existing = prev.find(a => a.id === artwork.id);
-        const updatedList = existing 
-          ? prev.map(a => a.id === artwork.id ? updated : a)
-          : [updated, ...prev];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-        return updatedList;
-      });
+      const updatedList = localArtworks.find(a => a.id === artwork.id)
+        ? localArtworks.map(a => a.id === artwork.id ? updated : a)
+        : [updated, ...localArtworks];
+      setLocalArtworks(updatedList);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
     } else {
-      setLocalArtworks(prev => {
-        const updatedList = prev.map(a => a.id === artwork.id ? updated : a);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-        return updatedList;
-      });
+      const updatedList = localArtworks.map(a => a.id === artwork.id ? updated : a);
+      setLocalArtworks(updatedList);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
     }
   };
 

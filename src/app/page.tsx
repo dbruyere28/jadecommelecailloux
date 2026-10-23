@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
@@ -13,13 +13,14 @@ import { artworks, getAvailableArtworks } from '@/data/artworks';
 import { Artwork } from '@/types/artwork';
 
 const STORAGE_KEY = 'artworks_catalog';
+const DELETED_KEY = 'artworks_deleted';
 
 export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
 
-  useEffect(() => {
+  const loadArtworks = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
@@ -29,6 +30,19 @@ export default function Home() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    loadArtworks();
+    
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY || e.key === DELETED_KEY) {
+        loadArtworks();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [loadArtworks]);
 
   // Combine static artworks with localStorage artworks (avoid duplicates by id)
   const allArtworks = [...artworks, ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))];
