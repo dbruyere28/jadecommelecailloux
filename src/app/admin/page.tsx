@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'artworks_catalog';
 const DELETED_KEY = 'artworks_deleted';
-const ADMIN_PASSWORD = 'galerie2024';
+const ADMIN_PASSWORD = 'Dreux28100';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
