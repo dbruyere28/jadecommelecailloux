@@ -40,7 +40,7 @@ export function Contact() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Par la poste des hiboux</p>
-                <p className="text-zinc-900 dark:text-white font-medium truncate">jade.bourneuf.art@gmail.com</p>
+                <p className="text-zinc-900 dark:text-white font-medium break-words">jade.bourneuf.art@gmail.com</p>
               </div>
             </a>
 
@@ -50,14 +50,14 @@ export function Contact() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Atelier</p>
-                <p className="text-zinc-900 dark:text-white font-medium truncate">Lisière de la forêt de Brocéliande</p>
+                <p className="text-zinc-900 dark:text-white font-medium break-words">Lisière de la forêt de Brocéliande</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center justify-center gap-6 pt-4">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/stories/highlights/18243671173232921/"
               target="_blank"
               rel="noopener noreferrer"
               className="p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all"
