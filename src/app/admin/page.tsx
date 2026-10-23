@@ -9,6 +9,7 @@ import { Artwork, ArtworkFormData } from '@/types/artwork';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'artworks_catalog';
+const DELETED_KEY = 'artworks_deleted';
 const ADMIN_PASSWORD = 'galerie2024';
 
 export default function AdminPage() {
@@ -34,6 +35,7 @@ export default function AdminPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
+  const [deletedStaticIds, setDeletedStaticIds] = useState<string[]>([]);
 
   useEffect(() => {
     setFormData(prev => ({ ...prev, year: new Date().getFullYear() }));
@@ -42,14 +44,23 @@ export default function AdminPage() {
       try {
         setLocalArtworks(JSON.parse(stored));
       } catch {
-        setLocalArtworks(artworks);
+        setLocalArtworks([]);
       }
-    } else {
-      setLocalArtworks(artworks);
+    }
+    const deleted = localStorage.getItem(DELETED_KEY);
+    if (deleted) {
+      try {
+        setDeletedStaticIds(JSON.parse(deleted));
+      } catch {
+        setDeletedStaticIds([]);
+      }
     }
   }, []);
 
-  const allArtworks = [...artworks, ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))];
+  const allArtworks = [
+    ...artworks.filter(a => !deletedStaticIds.includes(a.id)),
+    ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))
+  ];
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
@@ -174,8 +185,22 @@ export default function AdminPage() {
 
   const handleDelete = (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ?')) {
-      setLocalArtworks(prev => prev.filter(a => a.id !== id));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(localArtworks.filter(a => a.id !== id)));
+      const isStatic = artworks.some(a => a.id === id);
+      if (isStatic) {
+        // Mark static artwork as deleted
+        setDeletedStaticIds(prev => {
+          const updated = [...prev, id];
+          localStorage.setItem(DELETED_KEY, JSON.stringify(updated));
+          return updated;
+        });
+      } else {
+        // Remove from localStorage artworks
+        setLocalArtworks(prev => {
+          const updated = prev.filter(a => a.id !== id);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+          return updated;
+        });
+      }
     }
   };
 
@@ -184,8 +209,25 @@ export default function AdminPage() {
     const currentIndex = statuses.indexOf(artwork.status);
     const newStatus = statuses[(currentIndex + 1) % statuses.length];
     const updated = { ...artwork, status: newStatus };
-    setLocalArtworks(prev => prev.map(a => a.id === artwork.id ? updated : a));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(localArtworks.map(a => a.id === artwork.id ? updated : a)));
+
+    const isStatic = artworks.some(a => a.id === artwork.id);
+    if (isStatic) {
+      // Create a local copy with updated status (overrides static)
+      setLocalArtworks(prev => {
+        const existing = prev.find(a => a.id === artwork.id);
+        const updatedList = existing 
+          ? prev.map(a => a.id === artwork.id ? updated : a)
+          : [updated, ...prev];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+        return updatedList;
+      });
+    } else {
+      setLocalArtworks(prev => {
+        const updatedList = prev.map(a => a.id === artwork.id ? updated : a);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+        return updatedList;
+      });
+    }
   };
 
   if (!isAuthenticated) {

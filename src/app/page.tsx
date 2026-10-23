@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
@@ -12,9 +12,27 @@ import { ArtworkModal } from '@/components/gallery/ArtworkModal';
 import { artworks, getAvailableArtworks } from '@/data/artworks';
 import { Artwork } from '@/types/artwork';
 
+const STORAGE_KEY = 'artworks_catalog';
+
 export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setLocalArtworks(JSON.parse(stored));
+      } catch {
+        setLocalArtworks([]);
+      }
+    }
+  }, []);
+
+  // Combine static artworks with localStorage artworks (avoid duplicates by id)
+  const allArtworks = [...artworks, ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))];
+  const availableArtworks = allArtworks.filter(a => a.status === 'available');
 
   const handleArtworkClick = (artwork: Artwork) => {
     setSelectedArtwork(artwork);
@@ -26,8 +44,6 @@ export default function Home() {
       window.location.href = `/api/checkout?artworkId=${selectedArtwork.id}`;
     }
   };
-
-  const availableArtworks = getAvailableArtworks();
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white antialiased">
