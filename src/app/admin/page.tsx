@@ -36,6 +36,8 @@ export default function AdminPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
+  const [imageUrl, setImageUrl] = useState<string>('');
   const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
   const [deletedStaticIds, setDeletedStaticIds] = useState<string[]>([]);
 
@@ -124,6 +126,38 @@ export default function AdminPage() {
     }
   };
 
+  const handleImageUrl = () => {
+    if (!imageUrl.trim()) {
+      alert('Veuillez entrer une URL valide');
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(imageUrl);
+    } catch {
+      alert('URL invalide');
+      return;
+    }
+
+    // Check if it's a Cloudinary URL to extract public_id
+    let publicId = '';
+    const cloudinaryMatch = imageUrl.match(/\/upload\/(?:v\d+\/)?([^./]+)/);
+    if (cloudinaryMatch) {
+      publicId = cloudinaryMatch[1];
+    }
+
+    setImagePreview(imageUrl);
+    setFormData(prev => ({ 
+      ...prev, 
+      image: imageUrl,
+      cloudinaryPublicId: publicId,
+    }));
+    setSaveError(null);
+    setImageUrl('');
+    setImageInputMode('upload'); // Switch back to upload mode after success
+  };
+
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
@@ -154,6 +188,8 @@ export default function AdminPage() {
     });
     setImagePreview(null);
     setImageFile(null);
+    setImageUrl('');
+    setImageInputMode('upload');
     setEditingArtwork(null);
     setShowForm(false);
   };
@@ -476,25 +512,80 @@ export default function AdminPage() {
                               </button>
                             </div>
                           )}
-                          <label className="flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors">
-                            <input
-                              id="image"
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                              required={!editingArtwork && !imagePreview}
-                            />
-                            <div className="flex flex-col items-center gap-2 p-6 text-center">
-                              <Upload className="w-10 h-10 text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
-                              <p className="text-zinc-600 dark:text-zinc-400">
-                                {imagePreview || editingArtwork ? 'Changer l\'image' : 'Glissez-déposez ou cliquez pour importer'}
-                              </p>
-                              <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                                PNG, JPG, WebP · Max 10 Mo (Cloudinary)
+                          
+                          {/* Mode tabs: Upload vs URL */}
+                          <div className="flex gap-2 mb-2" role="tablist" aria-label="Mode d'ajout d'image">
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={imageInputMode === 'upload'}
+                              onClick={() => setImageInputMode('upload')}
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                imageInputMode === 'upload'
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                              }`}
+                            >
+                              Upload
+                            </button>
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={imageInputMode === 'url'}
+                              onClick={() => setImageInputMode('url')}
+                              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                imageInputMode === 'url'
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                              }`}
+                            >
+                              URL
+                            </button>
+                          </div>
+
+                          {imageInputMode === 'upload' && (
+                            <label className="flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors">
+                              <input
+                                id="image"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                                required={!editingArtwork && !imagePreview}
+                              />
+                              <div className="flex flex-col items-center gap-2 p-6 text-center">
+                                <Upload className="w-10 h-10 text-zinc-400 dark:text-zinc-500" aria-hidden="true" />
+                                <p className="text-zinc-600 dark:text-zinc-400">
+                                  {imagePreview || editingArtwork ? 'Changer l\'image' : 'Glissez-déposez ou cliquez pour importer'}
+                                </p>
+                                <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                                  PNG, JPG, WebP · Max 10 Mo (Cloudinary)
+                                </p>
+                              </div>
+                            </label>
+                          )}
+
+                          {imageInputMode === 'url' && (
+                            <div className="space-y-3">
+                              <div className="flex gap-2">
+                                <input
+                                  type="url"
+                                  value={imageUrl}
+                                  onChange={e => setImageUrl(e.target.value)}
+                                  placeholder="https://res.cloudinary.com/... ou https://..."
+                                  className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                  placeholder="https://res.cloudinary.com/..."
+                                />
+                                <Button type="button" onClick={handleImageUrl} variant="primary">
+                                  Ajouter
+                                </Button>
+                              </div>
+                              <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center">
+                                Collez une URL d\'image (Cloudinary, Imgur, etc.). Les URLs Cloudinary détecteront automatiquement le public_id.
                               </p>
                             </div>
-                          </label>
+                          )}
+
                           {!imagePreview && !editingArtwork && (
                             <p className="text-red-500 text-sm text-center">Une image est requise</p>
                           )}
