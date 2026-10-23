@@ -48,15 +48,6 @@ export function Header({ className }: HeaderProps) {
               </motion.a>
             ))}
           </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="hidden sm:block text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-            >
-              Administration
-            </Link>
-          </div>
         </div>
       </div>
     </motion.header>

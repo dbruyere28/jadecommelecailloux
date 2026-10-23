@@ -49,11 +49,6 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/admin" className="text-emerald-200 hover:text-white transition-colors text-sm">
-                  Administration
-                </Link>
-              </li>
             </ul>
           </motion.nav>
 
