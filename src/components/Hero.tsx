@@ -65,7 +65,7 @@ export function Hero() {
 
         <StaggerContainer delay={0.9} stagger={0.2} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <StaggerItem>
-            <a
+            <motion.a
               href="#gallery"
               className="group px-8 py-4 bg-white text-emerald-900 font-medium rounded-xl hover:bg-emerald-50 transition-colors shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02 }}
@@ -75,17 +75,17 @@ export function Hero() {
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4-4 4m-6-12l4 4-4 4M6 12h18" />
               </svg>
-            </a>
+            </motion.a>
           </StaggerItem>
           <StaggerItem>
-            <a
+            <motion.a
               href="#about"
               className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-medium rounded-xl border border-emerald-400/30 hover:bg-emerald-400/20 transition-colors flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02, borderColor: '#fde047' }}
               whileTap={{ scale: 0.98 }}
             >
               Connaître l'artiste
-            </a>
+            </motion.a>
           </StaggerItem>
         </StaggerContainer>
       </motion.div>

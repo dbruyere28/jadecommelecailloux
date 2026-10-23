@@ -512,11 +512,19 @@ export function GradientText({ children, className = '', delay = 0 }: { children
     <motion.span
       className={`${className} bg-gradient-to-r from-emerald-300 via-cyan-300 to-amber-300 bg-clip-text text-transparent`}
       initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 1.2, delay, ease: 'easeOut' }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+      }}
+      transition={{
+        duration: 1.2,
+        delay,
+        ease: 'easeOut',
+        backgroundPosition: { duration: 8, repeat: Infinity, ease: 'linear' },
+      }}
       style={{ backgroundSize: '200% 200%' }}
-      animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-      transition={{ backgroundPosition: { duration: 8, repeat: Infinity, ease: 'linear' } }}
     >
       {children}
     </motion.span>
