@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { ArtistNameHeader } from '@/components/ArtistName';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -24,13 +24,7 @@ export function Header({ className }: HeaderProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <Link
-            href="/"
-            className="text-xl lg:text-2xl font-light tracking-wide text-zinc-900 dark:text-white hover:opacity-70 transition-opacity"
-            aria-label="Accueil - Portfolio de l'artiste"
-          >
-            Jade Bourneuf
-          </Link>
+          <ArtistNameHeader aria-label="Accueil - Portfolio de l'artiste" />
 
           <nav className="hidden lg:flex items-center gap-8" aria-label="Navigation principale">
             {navItems.map((item, index) => (

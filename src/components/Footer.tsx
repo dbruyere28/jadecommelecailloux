@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ArtistNameFooter } from '@/components/ArtistName';
 import { cn } from '@/lib/utils';
 
 export function Footer() {
@@ -22,9 +23,7 @@ export function Footer() {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <Link href="/" className="text-2xl lg:text-3xl font-light tracking-wide hover:opacity-70 transition-opacity text-emerald-200" aria-label="Accueil">
-              Jade Bourneuf
-            </Link>
+            <ArtistNameFooter aria-label="Accueil" />
             <p className="text-emerald-300 text-base leading-relaxed max-w-xs">
               Artiste de la féerie. Gardienne des portes entre les mondes. Peint l'invisible au creux des forêts anciennes.
             </p>
