@@ -32,7 +32,7 @@ export function Contact() {
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-md mx-auto">
             <a
-              href="mailto:jade.bourneuf.art@exemple.com"
+              href="mailto:jade.bourneuf.art@gmail.com"
               className="group flex items-center gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
             >
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
@@ -40,7 +40,7 @@ export function Contact() {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Par la poste des hiboux</p>
-                <p className="text-zinc-900 dark:text-white font-medium">jade.bourneuf.art@exemple.com</p>
+                <p className="text-zinc-900 dark:text-white font-medium">jade.bourneuf.art@gmail.com</p>
               </div>
             </a>
 
