@@ -116,7 +116,7 @@ export default function Home() {
                 <span className="font-medium">disponibles</span>
               </h2>
               <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Chaque pièce est unique, signée et accompagnée de son certificat d&apos;authenticité.
+                Chaque pièce est unique et signée.
                 Prix unique : <strong className="text-zinc-900 dark:text-white">50 €</strong>.
               </p>
             </motion.div>
