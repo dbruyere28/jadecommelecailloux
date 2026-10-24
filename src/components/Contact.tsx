@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Link } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 
 // Instagram icon component
 function InstagramIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
@@ -86,22 +86,13 @@ export function Contact() {
 
           <div className="flex items-center justify-center gap-6 pt-4">
             <a
-              href="https://www.instagram.com/stories/highlights/18243671173232921/"
+              href="https://www.instagram.com/jadecommeuncailloux/"
               target="_blank"
               rel="noopener noreferrer"
               className="p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all"
               aria-label="Instagram"
             >
               <InstagramIcon className="w-5 h-5" aria-hidden="true" />
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all"
-              aria-label="LinkedIn"
-            >
-              <Link className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>
         </motion.div>
