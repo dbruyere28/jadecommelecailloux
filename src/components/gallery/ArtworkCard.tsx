@@ -3,8 +3,9 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Artwork } from '@/types/artwork';
-import { formatPrice, formatDimensions, getStatusLabel, getStatusColor } from '@/lib/utils';
+import { formatPrice, formatDimensions, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/components/LocaleProvider';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -13,6 +14,7 @@ interface ArtworkCardProps {
 }
 
 export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
+  const { locale, t } = useLocale();
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
 
@@ -27,7 +29,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       role="button"
-      aria-label={isSold ? `${artwork.title}, vendu` : isReserved ? `${artwork.title}, réservé` : `Voir ${artwork.title}`}
+      aria-label={isSold ? `${artwork.title}, ${t('status.sold')}` : isReserved ? `${artwork.title}, ${t('status.reserved')}` : t('card.view', { title: artwork.title })}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
         <Image
@@ -46,7 +48,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
                 ? 'bg-white/90 text-zinc-900'
                 : 'bg-amber-100/90 text-amber-900'
             )}>
-              {getStatusLabel(artwork.status)}
+              {t(`status.${artwork.status}` as 'status.available' | 'status.sold' | 'status.reserved')}
             </span>
           </div>
         )}
@@ -66,7 +68,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-white">
-            {formatPrice(artwork.price)}
+            {t('price.from')} {formatPrice(artwork.price, locale)}
           </span>
           <span
             className={cn(
@@ -77,7 +79,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
               artwork.status === 'available' && 'bg-emerald-50 dark:bg-emerald-900/20'
             )}
           >
-            {getStatusLabel(artwork.status)}
+            {t(`status.${artwork.status}` as 'status.available' | 'status.sold' | 'status.reserved')}
           </span>
         </div>
       </div>

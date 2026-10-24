@@ -2,8 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
+import { useLocale } from '@/components/LocaleProvider';
 
 export function Hero() {
+  const { t } = useLocale();
+
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center pt-24 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
       {/* Slow-motion video background - fills the hero without blocking the page */}
@@ -43,7 +46,7 @@ export function Hero() {
         <FloatIn direction="down" delay={0.2} className="mb-8">
           <span className="inline-block px-6 py-2 mb-8 rounded-full bg-emerald-900/30 backdrop-blur-md border border-emerald-400/30">
             <span className="text-xs font-medium uppercase tracking-widest text-emerald-200">
-              Collection Féerie 2026
+              {t('hero.collection')}
             </span>
           </span>
         </FloatIn>
@@ -54,18 +57,18 @@ export function Hero() {
               id="hero-title"
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-8 leading-[1.1]"
             >
-              Là où
+              {t('hero.where')}
               <br />
-              <GradientText delay={0.1}>la forêt rêve</GradientText>
+              <GradientText delay={0.1}>{t('hero.forest')}</GradientText>
             </motion.h1>
           </StaggerItem>
         </StaggerContainer>
 
         <FloatIn direction="up" delay={0.7} className="mb-12">
           <motion.p className="text-lg sm:text-xl lg:text-2xl font-light text-white/90 max-w-2xl mx-auto mb-12 leading-relaxed">
-            Entre les branches, <span className="font-medium text-amber-200">la magie veille</span>.
+            {t('hero.line1')} <span className="font-medium text-amber-200">{t('hero.magic')}</span>
             <br />
-            Chaque toile ouvre un passage vers l&apos;invisible.
+            {t('hero.line2')}
           </motion.p>
         </FloatIn>
 
@@ -77,7 +80,7 @@ export function Hero() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Entrer dans la galerie
+              {t('hero.gallery')}
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4-4 4m-6-12l4 4-4 4M6 12h18" />
               </svg>
@@ -90,7 +93,7 @@ export function Hero() {
               whileHover={{ scale: 1.02, borderColor: '#fde047' }}
               whileTap={{ scale: 0.98 }}
             >
-              Connaître l&apos;artiste
+              {t('hero.artist')}
             </motion.a>
           </StaggerItem>
         </StaggerContainer>
@@ -116,7 +119,7 @@ export function Hero() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </motion.svg>
           <span className="text-xs uppercase tracking-widest font-medium hidden sm:block">
-            Scroll
+            {t('hero.scroll')}
           </span>
         </motion.div>
       </FloatIn>

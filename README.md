@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Paiements Stripe (mode test)
 
-Le site utilise Stripe Checkout avec des clés de test uniquement. Les œuvres et leurs prix sont lus côté serveur depuis Upstash KV ; le navigateur ne peut pas modifier le montant. Une œuvre est réservée pendant le paiement, puis marquée vendue par le webhook Stripe après confirmation.
+Le site utilise Stripe Checkout avec des clés de test uniquement. Le prix minimum de chaque œuvre est lu côté serveur depuis Upstash KV ; l’acheteur peut proposer un montant supérieur, que le serveur vérifie avant de créer le paiement. Une œuvre est réservée pendant le paiement, puis marquée vendue par le webhook Stripe après confirmation.
 
 Variables à configurer dans `.env.local` pour le développement et dans les paramètres Vercel pour l’environnement de test :
 

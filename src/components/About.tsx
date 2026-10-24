@@ -1,8 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLocale } from '@/components/LocaleProvider';
 
 export function About() {
+  const { t } = useLocale();
+
   return (
     <section id="about" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-white dark:bg-zinc-950" aria-labelledby="about-title">
       <div className="max-w-6xl mx-auto">
@@ -15,52 +18,31 @@ export function About() {
         >
           <div className="space-y-4">
             <span className="text-xs font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-              À propos
+              {t('about.label')}
             </span>
             <h2 id="about-title" className="text-4xl lg:text-5xl font-light tracking-tight text-zinc-900 dark:text-white">
-              Une vie tissée de
+              {t('about.heading1')}
               <br />
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">féerie et de forêts</span>
+              <span className="font-medium text-emerald-600 dark:text-emerald-400">{t('about.heading2')}</span>
             </h2>
           </div>
 
           <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6 text-lg leading-relaxed">
-            <p>
-              Née à <strong>Dreux en 2002</strong>, Jade Bourneuf grandit entre les contes de sa grand-mère
-              et les forêts d&apos;Île-de-France. Très tôt, elle comprend que la peinture n&apos;est pas un art :
-              c&apos;est une façon de garder les portes ouvertes entre les mondes.
-            </p>
-            <p>
-              Son travail naît au carrefour des contes oubliés, de la botanique mystique et des grimoires
-              transmis de génération en génération. Sorcières gardiennes, arbres-mondes, lucioles messagères :
-              chaque toile est un fragment de cet ailleurs qui frôle notre réalité.
-            </p>
-            <p>
-              Autodidacte, elle mêle pigments naturels, encres végétales et feuilles d&apos;or sur bois
-              et toile brute.
-            </p>
+              <p>{t('about.bio1')}</p>
+              <p>{t('about.bio2')}</p>
+              <p>{t('about.bio3')}</p>
           </div>
 
           <div className="border-t border-zinc-100 dark:border-zinc-800 pt-8 space-y-4">
             <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-white">
-              Le secret du <span className="text-emerald-600 dark:text-emerald-400">x</span>
+              {t('about.legendTitle')}
             </h3>
             <div className="space-y-4 text-base sm:text-lg leading-relaxed text-zinc-600 dark:text-zinc-300">
-              <p>
-                On raconte qu’un soir, au bord de la forêt, Jade trouva un petit caillou lisse. Il était seul,
-                mais lorsqu’elle le posa dans sa paume, elle entendit mille histoires : le chant des ruisseaux,
-                le sommeil des montagnes, le secret des graines sous la terre.
-              </p>
-              <p>
-                Sur sa surface, deux fines lignes se croisaient comme un x. Ce n’était pas une faute, mais une
-                porte : là où les chemins se rencontrent, les mondes commencent à se mêler.
-              </p>
-              <p>
-                Alors Jade garda le x. Depuis, son caillou n’est plus tout à fait seul. Il porte en lui tous les
-                autres — et un peu de magie en plus.
-              </p>
+              <p>{t('about.legend1')}</p>
+              <p>{t('about.legend2')}</p>
+              <p>{t('about.legend3')}</p>
               <p className="font-medium text-emerald-700 dark:text-emerald-300">
-                « Jade comme le cailloux » : un petit mystère d’orthographe pour ouvrir la porte aux grands imaginaires.
+                {t('about.legend4')}
               </p>
             </div>
           </div>

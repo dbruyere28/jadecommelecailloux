@@ -3,18 +3,21 @@
 import { motion } from 'framer-motion';
 import { ArtistNameHeader } from '@/components/ArtistName';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/components/LocaleProvider';
 
 interface HeaderProps {
   className?: string;
 }
 
 const navItems = [
-  { href: '/#gallery', label: 'Galerie' },
-  { href: '/#about', label: 'À propos' },
-  { href: '/#contact', label: 'Contact' },
-];
+  { href: '/#gallery', labelKey: 'nav.gallery' },
+  { href: '/#about', labelKey: 'nav.about' },
+  { href: '/#contact', labelKey: 'nav.contact' },
+] as const;
 
 export function Header({ className }: HeaderProps) {
+  const { locale, setLocale, t } = useLocale();
+
   return (
     <motion.header
       className={cn('fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800', className)}
@@ -26,32 +29,44 @@ export function Header({ className }: HeaderProps) {
         <div className="flex items-center justify-between h-14 lg:h-20">
           <ArtistNameHeader aria-label="Accueil - Portfolio de l'artiste" />
 
-          <nav className="hidden lg:flex items-center gap-8" aria-label="Navigation principale">
-            {navItems.map((item, index) => (
-              <motion.a
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors relative"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
-                whileHover={{ x: 2 }}
-              >
-                {item.label}
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-900 dark:bg-white scale-x-0 origin-bottom-right transition-transform duration-300 group-hover:scale-x-100 group-hover:origin-bottom-left" />
-              </motion.a>
-            ))}
-          </nav>
+          <div className="flex items-center gap-5">
+            <nav className="hidden lg:flex items-center gap-8" aria-label={t('nav.aria')}>
+              {navItems.map((item, index) => (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors relative"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
+                  whileHover={{ x: 2 }}
+                >
+                  {t(item.labelKey)}
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-900 dark:bg-white scale-x-0 origin-bottom-right transition-transform duration-300 group-hover:scale-x-100 group-hover:origin-bottom-left" />
+                </motion.a>
+              ))}
+            </nav>
+            <label className="sr-only" htmlFor="site-language">{t('language.label')}</label>
+            <select
+              id="site-language"
+              value={locale}
+              onChange={(event) => setLocale(event.target.value as 'fr' | 'en')}
+              className="min-h-10 rounded-lg border border-zinc-200 bg-white px-2 text-sm font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+            >
+              <option value="fr">FR</option>
+              <option value="en">EN</option>
+            </select>
+          </div>
         </div>
 
-        <nav className="flex lg:hidden items-center justify-center gap-7 pb-3" aria-label="Navigation principale">
+        <nav className="flex lg:hidden items-center justify-center gap-7 pb-3" aria-label={t('nav.aria')}>
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
               className="min-h-11 inline-flex items-center text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
-              {item.label}
+              {t(item.labelKey)}
             </a>
           ))}
         </nav>

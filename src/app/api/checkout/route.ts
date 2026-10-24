@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   let stripe: ReturnType<typeof getStripeClient> | undefined;
 
   try {
-    const body: { artworkId?: string; shippingZone?: ShippingZone } = await request.json();
+    const body: { artworkId?: string; shippingZone?: ShippingZone; offerAmount?: number } = await request.json();
     const artworkId = body.artworkId?.trim();
     const shippingZone = body.shippingZone;
 
@@ -56,9 +56,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cette œuvre n’est plus disponible.' }, { status: 409 });
     }
 
-    const amountInCents = Math.round(artwork.price * 100);
-    if (!Number.isSafeInteger(amountInCents) || amountInCents < 50) {
-      return NextResponse.json({ error: 'Le prix de cette œuvre est invalide.' }, { status: 400 });
+    const minimumAmountInCents = Math.round(artwork.price * 100);
+    const amountInCents = Math.round(Number(body.offerAmount) * 100);
+    if (
+      !Number.isSafeInteger(minimumAmountInCents) ||
+      minimumAmountInCents < 50 ||
+      !Number.isSafeInteger(amountInCents) ||
+      amountInCents < minimumAmountInCents ||
+      amountInCents > 99_999_999
+    ) {
+      return NextResponse.json(
+        { error: `Votre offre doit être au moins égale au prix minimum de ${artwork.price} €.` },
+        { status: 400 }
+      );
     }
 
     reservationKey = `artwork_checkout_lock:${artworkId}`;
@@ -118,11 +128,13 @@ export async function POST(request: NextRequest) {
         artworkId,
         artworkTitle: artwork.title,
         shippingZone,
+        offerAmountCents: String(amountInCents),
         reservationToken,
       },
       payment_intent_data: {
         metadata: {
           artworkId,
+          offerAmountCents: String(amountInCents),
           reservationToken,
         },
       },

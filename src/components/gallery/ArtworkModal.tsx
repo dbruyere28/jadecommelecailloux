@@ -5,20 +5,23 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { X, Maximize, Minimize, ShoppingBag, Info, Loader2 } from 'lucide-react';
 import { Artwork } from '@/types/artwork';
-import { formatPrice, formatDimensions, getStatusLabel, getStatusColor } from '@/lib/utils';
+import { formatPrice, formatDimensions, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
+import { useLocale } from '@/components/LocaleProvider';
 
 interface ArtworkModalProps {
   artwork: Artwork | null;
   isOpen: boolean;
   onClose: () => void;
-  onPurchase: (shippingZone: ShippingZone) => Promise<void>;
+  onPurchase: (shippingZone: ShippingZone, offerAmount: number) => Promise<void>;
 }
 
 export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkModalProps) {
+  const { locale, t } = useLocale();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [offerAmount, setOfferAmount] = useState(String(artwork?.price ?? 0));
   const [shippingZone, setShippingZone] = useState<ShippingZone>('france');
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -55,12 +58,18 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
   const isReserved = artwork.status === 'reserved';
 
   const handlePurchase = async () => {
+    const numericOffer = Number(offerAmount);
+    if (!artwork || !Number.isFinite(numericOffer) || numericOffer < artwork.price) {
+      setCheckoutError(t('offer.minimumError', { amount: formatPrice(artwork?.price ?? 0, locale) }));
+      return;
+    }
+
     setIsStartingCheckout(true);
     setCheckoutError(null);
     try {
-      await onPurchase(shippingZone);
+      await onPurchase(shippingZone, numericOffer);
     } catch (error) {
-      setCheckoutError(error instanceof Error ? error.message : 'Impossible de lancer le paiement. Réessayez.');
+      setCheckoutError(error instanceof Error ? error.message : t('checkout.failed'));
       setIsStartingCheckout(false);
     }
   };
@@ -96,7 +105,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="min-h-11 min-w-11 p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
-              aria-label={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
+              aria-label={isFullscreen ? t('modal.exitFullscreen') : t('modal.fullscreen')}
             >
               {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
             </motion.button>
@@ -105,7 +114,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
               whileTap={{ scale: 0.9 }}
               onClick={onClose}
               className="min-h-11 min-w-11 p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
-              aria-label="Fermer"
+              aria-label={t('modal.close')}
             >
               <X className="w-5 h-5" />
             </motion.button>
@@ -144,16 +153,19 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                   transition={{ delay: 0.2, duration: 0.4 }}
                 >
                   <p className="text-xs font-medium uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2">
-                    {artwork.category || 'Œuvre unique'}
+              {artwork.category || t('modal.uniqueWork')}
                   </p>
                   <h2 id="artwork-title" className="text-3xl lg:text-4xl font-light tracking-tight text-zinc-900 dark:text-white mb-4">
                     {artwork.title}
                   </h2>
 
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="text-xl font-semibold text-zinc-900 dark:text-white">
-                      {formatPrice(artwork.price)}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-4 mb-6">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('price.minimum')}</p>
+                      <span className="text-xl font-semibold text-zinc-900 dark:text-white">
+                        {formatPrice(artwork.price, locale)}
+                      </span>
+                    </div>
                     <span
                       className={cn(
                         'px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-full',
@@ -163,7 +175,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                         artwork.status === 'available' && 'bg-emerald-50 dark:bg-emerald-900/20'
                       )}
                     >
-                      {getStatusLabel(artwork.status)}
+                      {t(`status.${artwork.status}` as 'status.available' | 'status.sold' | 'status.reserved')}
                     </span>
                   </div>
 
@@ -177,21 +189,21 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                     <div className="flex items-center gap-4 text-zinc-600 dark:text-zinc-400">
                       <Info className="w-5 h-5 text-zinc-400 flex-shrink-0" aria-hidden="true" />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider">Dimensions</p>
+                        <p className="text-xs font-medium uppercase tracking-wider">{t('details.dimensions')}</p>
                         <p className="text-base">{formatDimensions(artwork)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-zinc-600 dark:text-zinc-400">
                       <Info className="w-5 h-5 text-zinc-400 flex-shrink-0" aria-hidden="true" />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider">Technique</p>
+                        <p className="text-xs font-medium uppercase tracking-wider">{t('details.technique')}</p>
                         <p className="text-base">{artwork.technique}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-zinc-600 dark:text-zinc-400">
                       <Info className="w-5 h-5 text-zinc-400 flex-shrink-0" aria-hidden="true" />
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider">Année</p>
+                        <p className="text-xs font-medium uppercase tracking-wider">{t('details.year')}</p>
                         <p className="text-base">{artwork.year}</p>
                       </div>
                     </div>
@@ -215,8 +227,30 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
               {!isSold && !isReserved && (
                 <div className="mt-6 space-y-4">
                   <div className="space-y-2">
+                    <label htmlFor="offer-amount" className="block text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      {t('offer.label')}
+                    </label>
+                    <input
+                      id="offer-amount"
+                      type="number"
+                      min={artwork.price}
+                      max="999999.99"
+                      step="0.01"
+                      inputMode="decimal"
+                      value={offerAmount}
+                      onChange={(event) => setOfferAmount(event.target.value)}
+                      disabled={isStartingCheckout}
+                      required
+                      className="w-full min-h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 text-zinc-900 dark:text-white"
+                    />
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {t('offer.help')}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <label htmlFor="shipping-zone" className="block text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                      Zone de livraison
+                      {t('shipping.label')}
                     </label>
                     <select
                       id="shipping-zone"
@@ -227,12 +261,12 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                     >
                       {Object.entries(SHIPPING_ZONES).map(([key, zone]) => (
                         <option key={key} value={key}>
-                          {zone.label} — {formatPrice(zone.priceCents / 100)}
+                          {t(`shipping.${key}` as 'shipping.france' | 'shipping.eu' | 'shipping.world')} — {formatPrice(zone.priceCents / 100, locale)}
                         </option>
                       ))}
                     </select>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Frais de livraison provisoires pour le mode test.
+                      {t('shipping.testFees')}
                     </p>
                   </div>
 
@@ -254,14 +288,14 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                     ) : (
                       <ShoppingBag className="w-5 h-5" aria-hidden="true" />
                     )}
-                    {isStartingCheckout ? 'Préparation du paiement…' : 'Acquérir cette œuvre'}
+                    {isStartingCheckout ? t('checkout.prepare') : t('checkout.buy')}
                   </motion.button>
                 </div>
               )}
 
               {(isSold || isReserved) && (
                 <p className="w-full py-4 px-6 text-center text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
-                  {isSold ? 'Cette œuvre a trouvé sa nouvelle demeure' : 'Cette œuvre est réservée'}
+                  {isSold ? t('checkout.sold') : t('checkout.reserved')}
                 </p>
               )}
             </div>

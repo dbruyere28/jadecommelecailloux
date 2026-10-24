@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Artwork } from '@/types/artwork';
 import { ArtworkCard } from './ArtworkCard';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/components/LocaleProvider';
 
 interface GalleryGridProps {
   artworks: Artwork[];
@@ -12,6 +13,7 @@ interface GalleryGridProps {
 }
 
 export function GalleryGrid({ artworks, onArtworkClick, className }: GalleryGridProps) {
+  const { t } = useLocale();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -32,7 +34,7 @@ export function GalleryGrid({ artworks, onArtworkClick, className }: GalleryGrid
       initial="hidden"
       animate="visible"
       role="list"
-      aria-label="Galerie d'œuvres"
+      aria-label={`${t('gallery.title1')} ${t('gallery.title2')}`}
     >
       {artworks.map((artwork, index) => (
         <motion.div key={artwork.id} variants={itemVariants} role="listitem">

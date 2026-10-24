@@ -1,17 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArtistNameFooter } from '@/components/ArtistName';
-import { cn } from '@/lib/utils';
+import { useLocale } from '@/components/LocaleProvider';
 
 export function Footer() {
-  const [currentYear, setCurrentYear] = useState(2024);
-
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
+  const { t } = useLocale();
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-emerald-950/50 dark:bg-emerald-950/50 text-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-t border-emerald-900/30" role="contentinfo">
@@ -24,9 +20,7 @@ export function Footer() {
             className="space-y-6"
           >
             <ArtistNameFooter aria-label="Accueil" />
-            <p className="text-emerald-300 text-base leading-relaxed max-w-xs">
-              Artiste de la féerie. Gardienne des portes entre les mondes. Peint l'invisible au creux des forêts anciennes.
-            </p>
+            <p className="text-emerald-300 text-base leading-relaxed max-w-xs">{t('footer.bio')}</p>
           </motion.div>
 
           <motion.nav
@@ -34,17 +28,21 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            aria-label="Navigation pied de page"
+            aria-label={t('footer.navigation')}
           >
-            <h3 className="text-xs font-medium uppercase tracking-widest text-emerald-300 mb-4">Navigation</h3>
+            <h3 className="text-xs font-medium uppercase tracking-widest text-emerald-300 mb-4">{t('footer.navigation')}</h3>
             <ul className="space-y-3">
-              {['Galerie', 'À propos', 'Contact'].map((item) => (
-                <li key={item}>
+              {[
+                { label: t('nav.gallery'), href: '/#gallery' },
+                { label: t('nav.about'), href: '/#about' },
+                { label: t('nav.contact'), href: '/#contact' },
+              ].map((item) => (
+                <li key={item.href}>
                   <Link
-                    href={item === 'Galerie' ? '/' : item === 'À propos' ? '/#about' : '/#contact'}
+                    href={item.href}
                     className="text-emerald-200 hover:text-white transition-colors text-sm"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -58,11 +56,11 @@ export function Footer() {
             transition={{ delay: 0.2 }}
             className="space-y-4"
           >
-            <h3 className="text-xs font-medium uppercase tracking-widest text-emerald-300">Légal</h3>
+            <h3 className="text-xs font-medium uppercase tracking-widest text-emerald-300">{t('footer.legal')}</h3>
             <ul className="space-y-3 text-sm text-emerald-300">
-              <li>Mentions légales</li>
-              <li>Politique de confidentialité</li>
-              <li>CGV</li>
+              <li>{t('footer.legalNotice')}</li>
+              <li>{t('footer.privacy')}</li>
+              <li>{t('footer.terms')}</li>
             </ul>
           </motion.div>
         </div>
@@ -75,10 +73,10 @@ export function Footer() {
           className="mt-12 lg:mt-16 pt-8 border-t border-emerald-900/30 flex flex-col lg:flex-row items-center justify-between gap-4"
         >
           <p className="text-emerald-400 text-sm">
-            © {currentYear} Jade Bourneuf. Tous droits réservés.
+            © {currentYear} Jade Bourneuf. {t('footer.rights')}
           </p>
           <p className="text-emerald-400 text-sm">
-            Site réalisé avec Next.js, Tailwind CSS & Framer Motion
+            {t('footer.madeWith')}
           </p>
         </motion.div>
       </div>
