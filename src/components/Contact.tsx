@@ -63,7 +63,7 @@ export function Contact() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl mx-auto">
             <a
-              href="mailto:jade.b1@hotmail.com"
+              href="mailto:jade.b1@hotmail.fr"
               className="group min-w-0 flex items-start gap-3 sm:gap-4 p-4 sm:p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
             >
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -71,7 +71,7 @@ export function Contact() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{t('contact.email')}</p>
-                <p className="text-sm sm:text-base text-zinc-900 dark:text-white font-medium break-all">jade.b1@hotmail.com</p>
+                <p className="text-sm sm:text-base text-zinc-900 dark:text-white font-medium break-all">jade.b1@hotmail.fr</p>
               </div>
             </a>
 
