@@ -1,13 +1,38 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { MagicBackground, FloatingOrbs, FloatingSparkles, GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
 
 export function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.25;
+    }
+  }, []);
+
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center pt-24 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
       {/* Magical animated background - fills entire viewport */}
       <div className="absolute inset-0 z-0">
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source
+            src="https://res.cloudinary.com/lhs8biff/video/upload/v1792831935/souffle_pissenlit.mp4"
+            type="video/mp4"
+          />
+        </video>
         <MagicBackground />
         <FloatingOrbs />
         <FloatingSparkles />
