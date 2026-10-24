@@ -17,7 +17,7 @@ import { MaintenanceGate } from '@/components/MaintenanceGate';
 import { useLocale } from '@/components/LocaleProvider';
 
 export default function Home() {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -96,7 +96,7 @@ export default function Home() {
     const response = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artworkId: selectedArtwork.id, shippingZone, offerAmount }),
+      body: JSON.stringify({ artworkId: selectedArtwork.id, shippingZone, offerAmount, locale }),
     });
     const data: { url?: string; error?: string } = await response.json();
 

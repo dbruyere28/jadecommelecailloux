@@ -1,6 +1,8 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 import { Artwork } from '@/types/artwork';
+import { secureStringEqual } from '@/lib/maintenance-auth.server';
+import { sameArtworkText, translateArtworkCollection } from '@/lib/deepl.server';
 
 const ARTWORKS_KEY = 'artworks_catalog';
 const DELETED_KEY = 'artworks_deleted';
@@ -27,11 +29,24 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body: {
+      artwork?: Artwork;
+      action?: string;
+      id?: string;
+      adminPassword?: string;
+    } = await req.json();
     const { artwork, action } = body;
 
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      return NextResponse.json({ error: 'Admin password is not configured' }, { status: 503 });
+    }
+    if (!secureStringEqual(body.adminPassword, adminPassword)) {
+      return NextResponse.json({ error: 'Not authorized' }, { status: 401 });
+    }
+
     if (action === 'delete') {
-      const { id, isStatic } = body;
+      const id = body.id || artwork?.id;
       if (!id) {
         return NextResponse.json({ error: 'Missing artwork ID' }, { status: 400 });
       }
@@ -45,7 +60,7 @@ export async function POST(req: NextRequest) {
       const artworksList = artworks || [];
       const deletedIdsSet = new Set(deletedIds || []);
 
-      if ((artworks || []).some(a => a.id === id)) {
+      if (artworksList.some(a => a.id === id)) {
         // Static artwork - mark as deleted
         deletedIdsSet.add(id);
       } else {
@@ -58,25 +73,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Create or update artwork
-    const newArtwork = artwork as Artwork;
-    
-    // Get current artworks
-    const currentArtworks = await kv.get<Artwork[]>(ARTWORKS_KEY) || [];
-    
-    // Check if editing existing
-    const existingIndex = currentArtworks.findIndex(a => a.id === newArtwork.id);
-    let updatedArtworks: Artwork[];
-    
-    if (existingIndex >= 0) {
-      updatedArtworks = currentArtworks.map(a => a.id === newArtwork.id ? newArtwork : a);
-    } else {
-      // New artwork
-      updatedArtworks = [newArtwork, ...currentArtworks];
+    if ((action !== 'create' && action !== 'update') || !artwork?.id) {
+      return NextResponse.json({ error: 'Invalid artwork action' }, { status: 400 });
     }
 
+    const currentArtworks = await kv.get<Artwork[]>(ARTWORKS_KEY) || [];
+    const existingIndex = currentArtworks.findIndex(a => a.id === artwork.id);
+    const existingArtwork = existingIndex >= 0 ? currentArtworks[existingIndex] : undefined;
+    const textUnchanged = existingArtwork ? sameArtworkText(existingArtwork, artwork) : false;
+    let artworkToSave: Artwork = {
+      ...artwork,
+      translations: textUnchanged ? existingArtwork?.translations : undefined,
+    };
+    let translationsGenerated = false;
+    let translationWarning: string | undefined;
+
+    if (!textUnchanged) {
+      if (!process.env.DEEPL_AUTH_KEY) {
+        translationWarning = 'Artwork saved, but DEEPL_AUTH_KEY is not configured; translations were not generated.';
+      } else {
+        try {
+          [artworkToSave] = await translateArtworkCollection([artworkToSave]);
+          translationsGenerated = true;
+        } catch (translationError) {
+          console.error('Automatic artwork translation failed:', translationError);
+          translationWarning = 'Artwork saved in French, but automatic translations failed.';
+        }
+      }
+    }
+
+    const updatedArtworks = existingIndex >= 0
+      ? currentArtworks.map(a => a.id === artworkToSave.id ? artworkToSave : a)
+      : [artworkToSave, ...currentArtworks];
+
     await kv.set(ARTWORKS_KEY, updatedArtworks);
-    return NextResponse.json({ success: true, artwork: newArtwork });
+    return NextResponse.json({
+      success: true,
+      artwork: artworkToSave,
+      translationsGenerated,
+      translationWarning,
+    });
   } catch (error) {
     console.error('Error saving artwork:', error);
     return NextResponse.json({ error: 'Failed to save artwork' }, { status: 500 });

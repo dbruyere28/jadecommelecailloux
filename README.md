@@ -57,6 +57,8 @@ Utilise la clé `whsec_...` affichée par la commande comme `STRIPE_WEBHOOK_SECR
 
 Les frais de livraison proposés pour les essais sont provisoires : France 8 €, Union européenne hors France 15 €, reste du monde 30 €. Les clés `sk_live_` sont volontairement refusées ; avant tout encaissement réel, il faudra valider les tarifs, la configuration de livraison et le passage explicite en mode live.
 
+Les œuvres peuvent être traduites automatiquement en anglais et en allemand avec DeepL. Configure `DEEPL_AUTH_KEY` comme variable serveur (sans préfixe `NEXT_PUBLIC_`) dans Vercel, puis redéploie. Les nouvelles œuvres et les modifications de leurs textes seront traduites à l’enregistrement ; le bouton **Traduire les œuvres existantes** dans l’administration permet de compléter les traductions déjà manquantes. Les textes français restent la source de référence et les traductions sont enregistrées dans Upstash KV.
+
 ## Mode maintenance
 
 Le mode maintenance se règle dans **Administration → Mode maintenance** et son état est stocké dans Upstash KV. Quand il est activé, le site demande le mot de passe défini par `MAINTENANCE_PASSWORD`. L’accès est mémorisé uniquement dans le navigateur qui a saisi ce mot de passe (cookie sécurisé de 12 heures) ; le bouton d’administration reste le seul moyen de désactiver la maintenance pour tout le monde. Configure ce mot de passe comme variable d’environnement dans Vercel avant d’activer le mode.

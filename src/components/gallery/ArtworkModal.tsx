@@ -9,6 +9,7 @@ import { formatPrice, formatUsdEstimate, formatDimensions, getStatusColor } from
 import { cn } from '@/lib/utils';
 import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
 import { useLocale } from '@/components/LocaleProvider';
+import { localizeArtwork } from '@/lib/localized-artwork';
 
 interface ArtworkModalProps {
   artwork: Artwork | null;
@@ -56,6 +57,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
 
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
+  const localizedArtwork = localizeArtwork(artwork, locale);
   const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
   const usdOffer = formatUsdEstimate(Number(offerAmount), usdPerEur, locale);
 
@@ -155,10 +157,10 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                   transition={{ delay: 0.2, duration: 0.4 }}
                 >
                   <p className="text-xs font-medium uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2">
-              {artwork.category || t('modal.uniqueWork')}
+                    {localizedArtwork.category || t('modal.uniqueWork')}
                   </p>
                   <h2 id="artwork-title" className="text-3xl lg:text-4xl font-light tracking-tight text-zinc-900 dark:text-white mb-4">
-                    {artwork.title}
+                    {localizedArtwork.title}
                   </h2>
 
                   <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -186,9 +188,9 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                     </span>
                   </div>
 
-                  {artwork.description && (
+                  {localizedArtwork.description && (
                     <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed mb-8 text-base lg:text-lg">
-                      {artwork.description}
+                      {localizedArtwork.description}
                     </p>
                   )}
 
@@ -204,7 +206,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                       <Info className="w-5 h-5 text-zinc-400 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wider">{t('details.technique')}</p>
-                        <p className="text-base">{artwork.technique}</p>
+                        <p className="text-base">{localizedArtwork.technique}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-zinc-600 dark:text-zinc-400">
@@ -218,12 +220,12 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
 
                   {artwork.tags && artwork.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {artwork.tags.map((tag) => (
+                      {artwork.tags.map((tag, index) => (
                         <span
                           key={tag}
                           className="px-3 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-full"
                         >
-                          {tag}
+                          {localizedArtwork.tags?.[index] ?? tag}
                         </span>
                       ))}
                     </div>

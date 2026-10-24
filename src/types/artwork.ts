@@ -15,6 +15,15 @@ export interface Artwork {
   tags?: string[];
   featured?: boolean;
   cloudinaryPublicId?: string; // For Cloudinary image management
+  translations?: Partial<Record<'en' | 'de', ArtworkTranslation>>;
+}
+
+export interface ArtworkTranslation {
+  title?: string;
+  description?: string;
+  technique?: string;
+  category?: string;
+  tags?: string[];
 }
 
 export interface ArtworkFormData {

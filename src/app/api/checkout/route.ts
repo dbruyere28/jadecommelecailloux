@@ -7,6 +7,8 @@ import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
 import { getAllowedShippingCountries } from '@/lib/shipping-countries.server';
 import { hasMaintenanceAccess, MAINTENANCE_ACCESS_COOKIE, MAINTENANCE_KEY } from '@/lib/maintenance-auth.server';
 import { getStripeClient } from '@/lib/stripe';
+import { localizeArtwork } from '@/lib/localized-artwork';
+import { SiteLocale } from '@/lib/messages';
 
 const ARTWORKS_KEY = 'artworks_catalog';
 const RESERVATION_TTL_SECONDS = 60 * 60;
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
   let stripe: ReturnType<typeof getStripeClient> | undefined;
 
   try {
-    const body: { artworkId?: string; shippingZone?: ShippingZone; offerAmount?: number } = await request.json();
+    const body: { artworkId?: string; shippingZone?: ShippingZone; offerAmount?: number; locale?: string } = await request.json();
     const artworkId = body.artworkId?.trim();
     const shippingZone = body.shippingZone;
 
@@ -55,6 +57,9 @@ export async function POST(request: NextRequest) {
     if (artwork.status !== 'available') {
       return NextResponse.json({ error: 'Cette œuvre n’est plus disponible.' }, { status: 409 });
     }
+
+    const locale: SiteLocale = body.locale === 'de' || body.locale === 'en' ? body.locale : 'fr';
+    const localizedArtwork = localizeArtwork(artwork, locale);
 
     const minimumAmountInCents = Math.round(artwork.price * 100);
     const amountInCents = Math.round(Number(body.offerAmount) * 100);
@@ -101,8 +106,8 @@ export async function POST(request: NextRequest) {
             currency: 'eur',
             unit_amount: amountInCents,
             product_data: {
-              name: artwork.title,
-              description: `${artwork.width} × ${artwork.height} cm · ${artwork.technique}`,
+              name: localizedArtwork.title,
+              description: `${artwork.width} × ${artwork.height} cm · ${localizedArtwork.technique}`,
               ...(artworkImage ? { images: [artworkImage] } : {}),
             },
           },
@@ -130,7 +135,7 @@ export async function POST(request: NextRequest) {
       cancel_url: `${origin}/#gallery`,
       metadata: {
         artworkId,
-        artworkTitle: artwork.title,
+        artworkTitle: localizedArtwork.title,
         shippingZone,
         offerAmountCents: String(amountInCents),
         ...(usdPerEur && Number.isFinite(usdPerEur) ? { usdPerEur: String(usdPerEur) } : {}),

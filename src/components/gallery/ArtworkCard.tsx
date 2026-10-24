@@ -6,6 +6,7 @@ import { Artwork } from '@/types/artwork';
 import { formatPrice, formatUsdEstimate, formatDimensions, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/LocaleProvider';
+import { localizeArtwork } from '@/lib/localized-artwork';
 
 interface ArtworkCardProps {
   artwork: Artwork;
@@ -15,6 +16,7 @@ interface ArtworkCardProps {
 
 export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
   const { locale, usdPerEur, t } = useLocale();
+  const localizedArtwork = localizeArtwork(artwork, locale);
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
   const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
@@ -30,12 +32,12 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
       role="button"
-      aria-label={isSold ? `${artwork.title}, ${t('status.sold')}` : isReserved ? `${artwork.title}, ${t('status.reserved')}` : t('card.view', { title: artwork.title })}
+      aria-label={isSold ? `${localizedArtwork.title}, ${t('status.sold')}` : isReserved ? `${localizedArtwork.title}, ${t('status.reserved')}` : t('card.view', { title: localizedArtwork.title })}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
         <Image
           src={artwork.thumbnail || artwork.image}
-          alt={artwork.title}
+          alt={localizedArtwork.title}
           fill
           className="object-cover transition-all duration-700 group-hover:scale-105"
           sizes="(max-width: 359px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
@@ -58,13 +60,13 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
 
       <div className="mt-3 sm:mt-4 space-y-2 min-w-0">
         <h3 className="text-base sm:text-lg font-medium text-zinc-900 dark:text-white group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition-colors break-words">
-          {artwork.title}
+          {localizedArtwork.title}
         </h3>
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
           <span>{formatDimensions(artwork)}</span>
           <span aria-hidden="true">·</span>
-          <span className="min-w-0 break-words">{artwork.technique}</span>
+          <span className="min-w-0 break-words">{localizedArtwork.technique}</span>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2">

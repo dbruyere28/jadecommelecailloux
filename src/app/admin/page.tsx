@@ -15,6 +15,8 @@ export default function AdminPage() {
   const [maintenanceReady, setMaintenanceReady] = useState(false);
   const [maintenanceSaving, setMaintenanceSaving] = useState(false);
   const [maintenanceError, setMaintenanceError] = useState<string | null>(null);
+  const [translatingArtworks, setTranslatingArtworks] = useState(false);
+  const [translationNotice, setTranslationNotice] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
   const [formData, setFormData] = useState<ArtworkFormData>({
@@ -280,13 +282,21 @@ export default function AdminPage() {
       const response = await fetch('/api/artworks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artwork: newArtwork, action: editingArtwork ? 'update' : 'create' }),
+        body: JSON.stringify({ artwork: newArtwork, action: editingArtwork ? 'update' : 'create', adminPassword: password }),
       });
 
-      const data = await response.json();
+      const data: { error?: string; translationsGenerated?: boolean; translationWarning?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Erreur lors de la sauvegarde');
+      }
+
+      if (data.translationWarning) {
+        setTranslationNotice(data.translationWarning.includes('DEEPL_AUTH_KEY')
+          ? 'Configurez DEEPL_AUTH_KEY dans Vercel pour activer les traductions automatiques.'
+          : 'Œuvre enregistrée en français, mais ses traductions automatiques ont échoué.');
+      } else if (data.translationsGenerated) {
+        setTranslationNotice('Traductions anglaises et allemandes générées automatiquement.');
       }
 
       // Refresh artworks list
@@ -347,7 +357,7 @@ export default function AdminPage() {
         const response = await fetch('/api/artworks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ artwork: { id }, action: 'delete' }),
+          body: JSON.stringify({ artwork: { id }, action: 'delete', adminPassword: password }),
         });
 
         if (!response.ok) {
@@ -373,7 +383,7 @@ export default function AdminPage() {
       const response = await fetch('/api/artworks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artwork: updated, action: 'update' }),
+        body: JSON.stringify({ artwork: updated, action: 'update', adminPassword: password }),
       });
 
       if (!response.ok) {
@@ -385,6 +395,31 @@ export default function AdminPage() {
     } catch (err) {
       console.error('Erreur mise à jour:', err);
       alert('Erreur lors de la mise à jour');
+    }
+  };
+
+  const handleTranslateExistingArtworks = async () => {
+    setTranslatingArtworks(true);
+    setTranslationNotice(null);
+    try {
+      const response = await fetch('/api/artworks/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminPassword: password }),
+      });
+      const data: { translated?: number; total?: number; error?: string } = await response.json();
+      if (response.status === 503) {
+        throw new Error('Ajoutez DEEPL_AUTH_KEY dans les variables Vercel pour activer les traductions.');
+      }
+      if (!response.ok) throw new Error(data.error || 'Impossible de traduire les œuvres.');
+      setTranslationNotice(data.translated
+        ? `${data.translated} œuvre(s) traduite(s) sur ${data.total}.`
+        : 'Toutes les œuvres possèdent déjà leurs traductions.');
+      await loadArtworks();
+    } catch (error) {
+      setTranslationNotice(error instanceof Error ? error.message : 'Impossible de traduire les œuvres.');
+    } finally {
+      setTranslatingArtworks(false);
     }
   };
 
@@ -497,6 +532,30 @@ export default function AdminPage() {
               disabled={!maintenanceReady}
             >
               {maintenanceEnabled ? 'Désactiver la maintenance' : 'Activer la maintenance'}
+            </Button>
+          </section>
+
+          <section className="mb-8 flex flex-col gap-4 rounded-2xl border border-zinc-100 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-800 sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-labelledby="translations-title">
+            <div>
+              <h2 id="translations-title" className="font-medium text-zinc-900 dark:text-white">
+                Traductions automatiques
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                Les textes des œuvres sont traduits en anglais et en allemand. Les nouvelles œuvres le seront lors de leur enregistrement.
+              </p>
+              {translationNotice && (
+                <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-300" role="status">
+                  {translationNotice}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleTranslateExistingArtworks}
+              loading={translatingArtworks}
+              disabled={translatingArtworks || artworks.length === 0}
+            >
+              Traduire les œuvres existantes
             </Button>
           </section>
 
