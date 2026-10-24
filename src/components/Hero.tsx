@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-16 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
-      {/* Magical animated background */}
+    <section className="relative min-h-screen min-h-[100vh] flex items-center justify-center pt-16 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
+      {/* Magical animated background - fills entire viewport */}
       <div className="absolute inset-0 z-0">
         <MagicBackground />
         <FloatingOrbs />
@@ -29,7 +29,7 @@ export function Hero() {
       </div>
 
       <motion.div
-        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
@@ -90,8 +90,8 @@ export function Hero() {
         </StaggerContainer>
       </motion.div>
 
-      {/* Scroll indicator - more visible on mobile */}
-      <FloatIn direction="up" delay={1.4} className="absolute bottom-6 left-1/2 -translate-x-1/2 lg:bottom-8">
+      {/* Scroll indicator - visible on all screens */}
+      <FloatIn direction="up" delay={1.4} className="absolute bottom-6 left-1/2 -translate-x-1/2">
         <motion.div 
           className="flex flex-col items-center gap-2 text-emerald-200/70"
           animate={{ y: [0, 12, 0] }}
