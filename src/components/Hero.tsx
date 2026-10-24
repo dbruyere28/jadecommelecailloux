@@ -46,7 +46,7 @@ export function Hero() {
           <StaggerItem>
             <motion.h1
               id="hero-title"
-              className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight text-white mb-8 leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-8 leading-[1.1]"
             >
               Là où
               <br />
@@ -63,7 +63,7 @@ export function Hero() {
           </motion.p>
         </FloatIn>
 
-        <StaggerContainer delay={0.9} stagger={0.2} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <StaggerContainer delay={0.9} stagger={0.2} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <StaggerItem>
             <motion.a
               href="#gallery"
@@ -90,18 +90,29 @@ export function Hero() {
         </StaggerContainer>
       </motion.div>
 
-      <FloatIn direction="up" delay={1.4} className="absolute bottom-8 left-1/2 -translate-x-1/2">
-        <motion.svg 
-          className="w-6 h-6 text-emerald-200/50" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-          animate={{ y: [0, 10, 0] }}
+      {/* Scroll indicator - more visible on mobile */}
+      <FloatIn direction="up" delay={1.4} className="absolute bottom-6 left-1/2 -translate-x-1/2 lg:bottom-8">
+        <motion.div 
+          className="flex flex-col items-center gap-2 text-emerald-200/70"
+          animate={{ y: [0, 12, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           aria-hidden="true"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </motion.svg>
+          <motion.svg 
+            className="w-6 h-6" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </motion.svg>
+          <span className="text-xs uppercase tracking-widest font-medium hidden sm:block">
+            Scroll
+          </span>
+        </motion.div>
       </FloatIn>
     </section>
   );

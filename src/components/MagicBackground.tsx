@@ -72,7 +72,7 @@ function createParticle(width: number, height: number) {
     baseOpacity: Math.random() * 0.4 + 0.15,
     speedX: (Math.random() - 0.5) * 0.3,
     speedY: (Math.random() - 0.5) * 0.3 - 0.1,
-    color: colorIndex,
+    color: Math.floor(Math.random() * 5),
     delay: Math.random() * Math.PI * 2,
     hue: Math.random() * 60,
     connections: [],
@@ -101,6 +101,7 @@ export function MagicBackground() {
   const sparklesRef = useRef<Sparkle[]>([]);
   const mouseRef = useRef({ x: -9999, y: -9999, active: false });
   const gradientTimeRef = useRef(0);
+  const initializedRef = useRef(false);
 
   // Handle mouse movement
   useEffect(() => {
@@ -120,32 +121,25 @@ export function MagicBackground() {
 
   // Initialize particles when width/height are available
   useEffect(() => {
-    if (!canvasRef.current || width === 0 || height === 0) return;
+    if (width === 0 || height === 0) return;
 
-    // Initialize particles with velocity and color
-    particlesRef.current = Array.from({ length: 50 }, () => {
-      const p = createParticle(width, height);
-      p.vx = (Math.random() - 0.5) * 0.5;
-      p.vy = (Math.random() - 0.5) * 0.5 - 0.1;
-      return p;
-    });
-
-    // Initialize sparkles
-    const initialSparkles = Array.from({ length: 15 }, () => createSparkle(width, height));
-    sparklesRef.current = initialSparkles;
+    particlesRef.current = Array.from({ length: 50 }, () => createParticle(width, height));
+    sparklesRef.current = Array.from({ length: 15 }, () => createSparkle(width, height));
+    initializedRef.current = true;
   }, [width, height]);
 
-  // Handle resize
+  // Handle resize - use window dimensions directly for reliability
   useEffect(() => {
     const resize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setWidth(w);
+      setHeight(h);
       if (canvasRef.current) {
-        const rect = canvasRef.current.parentElement?.getBoundingClientRect();
-        if (rect) {
-          setWidth(rect.width);
-          setHeight(rect.height);
-          canvasRef.current.width = rect.width * window.devicePixelRatio;
-          canvasRef.current.height = rect.height * window.devicePixelRatio;
-        }
+        canvasRef.current.width = w * window.devicePixelRatio;
+        canvasRef.current.height = h * window.devicePixelRatio;
+        canvasRef.current.style.width = `${w}px`;
+        canvasRef.current.style.height = `${h}px`;
       }
     };
 
@@ -162,16 +156,13 @@ export function MagicBackground() {
     if (!ctx) return;
 
     // Initialize particles once
-    if (particlesRef.current.length === 0) {
-      particlesRef.current = Array.from({ length: 50 }, () => {
-        const p = createParticle(width, height);
-        p.vx = (Math.random() - 0.5) * 0.5;
-        p.vy = (Math.random() - 0.5) * 0.5 - 0.1;
-        return p;
-      });
+    if (!initializedRef.current) {
+      particlesRef.current = Array.from({ length: 50 }, () => createParticle(width, height));
       sparklesRef.current = Array.from({ length: 15 }, () => createSparkle(width, height));
+      initializedRef.current = true;
     }
 
+    const ctx = canvasRef.current.getContext('2d')!;
     let gradientTime = 0;
 
     const animate = (timestamp: number) => {
@@ -228,8 +219,7 @@ export function MagicBackground() {
             
             if (dist < 180) {
               const opacity = (1 - dist / 180) * 0.15;
-              const [r1, g1, b1] = [110, 231, 183]; // Using first color for connections
-              const r = r1, g = g1, b = b1;
+              const r = 110, g = 231, b = 183;
               ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
               ctx.lineWidth = 0.5;
               ctx.beginPath();
@@ -334,23 +324,24 @@ export function MagicBackground() {
     return () => cancelAnimationFrame(animationRef.current!);
   }, [width, height]);
 
-  // Set canvas dimensions
+  // Set canvas dimensions - use window dimensions directly
   useEffect(() => {
-    const resize = () => {
+    const setCanvasSize = () => {
       if (canvasRef.current) {
-        const rect = canvasRef.current.parentElement?.getBoundingClientRect();
-        if (rect) {
-          setWidth(rect.width);
-          setHeight(rect.height);
-          canvasRef.current.width = rect.width * window.devicePixelRatio;
-          canvasRef.current.height = rect.height * window.devicePixelRatio;
-        }
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        setWidth(w);
+        setHeight(h);
+        canvasRef.current.width = w * window.devicePixelRatio;
+        canvasRef.current.height = h * window.devicePixelRatio;
+        canvasRef.current.style.width = `${w}px`;
+        canvasRef.current.style.height = `${h}px`;
       }
     };
 
-    resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    setCanvasSize();
+    window.addEventListener('resize', setCanvasSize);
+    return () => window.removeEventListener('resize', setCanvasSize);
   }, []);
 
   return (
@@ -358,7 +349,7 @@ export function MagicBackground() {
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
       aria-hidden="true"
-      style={{ pointerEvents: 'none' }}
+      style={{ pointerEvents: 'none', display: 'block', width: '100%', height: '100%' }}
     />
   );
 }
@@ -366,7 +357,7 @@ export function MagicBackground() {
 export function FloatingOrbs() {
   const orbs = [
     { x: '10%', y: '15%', size: '350px', color: 'rgba(110, 231, 183, 0.1)', delay: 0, speed: 25 },
-    { x: '85%', y: '20%', size: '250px', color: 'rgba(167, 139, 250, 0.08)', delay: 2, speed: 30 },
+    { x: '85%', y: '20%', size: '250px', color: 'rgba(167, 139, 250, 0.06)', delay: 2, speed: 30 },
     { x: '15%', y: '75%', size: '250px', color: 'rgba(251, 191, 36, 0.06)', delay: 4, speed: 28 },
     { x: '75%', y: '80%', size: '180px', color: 'rgba(56, 189, 248, 0.05)', delay: 1, speed: 32 },
     { x: '50%', y: '50%', size: '450px', color: 'rgba(244, 114, 182, 0.04)', delay: 3, speed: 35 },
