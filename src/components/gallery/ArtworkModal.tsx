@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { X, Maximize, Minimize, ShoppingBag, Info } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { Artwork } from '@/types/artwork';
 import { formatPrice, formatDimensions, getStatusLabel, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -55,7 +54,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
     <AnimatePresence>
       <motion.div
         ref={modalRef}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm p-0 sm:p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -67,8 +66,8 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
       >
         <motion.div
           className={cn(
-            'relative w-full h-full max-w-6xl max-h-[90vh] mx-4 my-8 rounded-xl overflow-hidden',
-            isFullscreen && 'max-w-full max-h-full mx-0 my-0 rounded-none'
+            'relative w-full h-[100dvh] max-h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] sm:max-w-6xl sm:rounded-xl overflow-hidden',
+            isFullscreen && 'h-full max-w-full max-h-full sm:max-w-full rounded-none'
           )}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -76,12 +75,12 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+          <div className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex items-center gap-2">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
+              className="min-h-11 min-w-11 p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
               aria-label={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'}
             >
               {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
@@ -90,15 +89,15 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
+              className="min-h-11 min-w-11 p-2 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
               aria-label="Fermer"
             >
               <X className="w-5 h-5" />
             </motion.button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
-            <div className="relative bg-black">
+          <div className="grid h-full min-h-0 grid-cols-1 grid-rows-[minmax(220px,40dvh)_minmax(0,1fr)] lg:grid-rows-1 lg:grid-cols-2">
+            <div className="relative min-h-0 bg-black">
               {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <motion.div
@@ -118,11 +117,11 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 )}
                 onLoad={() => setImageLoaded(true)}
-                sizes="50vw"
+                sizes="(max-width: 1023px) 100vw, 50vw"
               />
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 p-6 lg:p-10 overflow-y-auto flex flex-col">
+            <div className="min-h-0 bg-white dark:bg-zinc-950 p-5 sm:p-6 lg:p-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain flex flex-col">
               <div className="flex-1">
                 <motion.div
                   initial={{ opacity: 0, x: 30 }}

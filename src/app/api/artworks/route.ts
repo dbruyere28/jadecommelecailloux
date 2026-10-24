@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       const artworksList = artworks || [];
       const deletedIdsSet = new Set(deletedIds || []);
 
-      if (artworks.some(a => a.id === id)) {
+      if ((artworks || []).some(a => a.id === id)) {
         // Static artwork - mark as deleted
         deletedIdsSet.add(id);
       } else {

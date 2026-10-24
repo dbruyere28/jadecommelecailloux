@@ -1,13 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { MagicBackground, FloatingOrbs, FloatingSparkles, GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
-import { cn } from '@/lib/utils';
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen min-h-[100vh] flex items-center justify-center pt-16 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
+    <section className="relative min-h-[100svh] flex items-center justify-center pt-24 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
       {/* Magical animated background - fills entire viewport */}
       <div className="absolute inset-0 z-0">
         <MagicBackground />
@@ -29,7 +27,7 @@ export function Hero() {
       </div>
 
       <motion.div
-        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]"
+        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center min-h-[calc(100svh-6rem)] lg:min-h-[calc(100svh-5rem)]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
@@ -59,7 +57,7 @@ export function Hero() {
           <motion.p className="text-lg sm:text-xl lg:text-2xl font-light text-white/90 max-w-2xl mx-auto mb-12 leading-relaxed">
             Entre les branches, <span className="font-medium text-amber-200">la magie veille</span>.
             <br />
-            Chaque toile ouvre un passage vers l'invisible.
+            Chaque toile ouvre un passage vers l&apos;invisible.
           </motion.p>
         </FloatIn>
 
@@ -67,7 +65,7 @@ export function Hero() {
           <StaggerItem>
             <motion.a
               href="#gallery"
-              className="group px-8 py-4 bg-white text-emerald-900 font-medium rounded-xl hover:bg-emerald-50 transition-colors shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2"
+              className="group w-full sm:w-auto px-6 sm:px-8 py-4 bg-white text-emerald-900 font-medium rounded-xl hover:bg-emerald-50 transition-colors shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -80,11 +78,11 @@ export function Hero() {
           <StaggerItem>
             <motion.a
               href="#about"
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-medium rounded-xl border border-emerald-400/30 hover:bg-emerald-400/20 transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 sm:px-8 py-4 bg-white/10 backdrop-blur-md text-white font-medium rounded-xl border border-emerald-400/30 hover:bg-emerald-400/20 transition-colors flex items-center justify-center gap-2"
               whileHover={{ scale: 1.02, borderColor: '#fde047' }}
               whileTap={{ scale: 0.98 }}
             >
-              Connaître l'artiste
+              Connaître l&apos;artiste
             </motion.a>
           </StaggerItem>
         </StaggerContainer>

@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 const navItems = [
-  { href: '/', label: 'Galerie' },
+  { href: '/#gallery', label: 'Galerie' },
   { href: '/#about', label: 'À propos' },
   { href: '/#contact', label: 'Contact' },
 ];
@@ -23,7 +23,7 @@ export function Header({ className }: HeaderProps) {
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-14 lg:h-20">
           <ArtistNameHeader aria-label="Accueil - Portfolio de l'artiste" />
 
           <nav className="hidden lg:flex items-center gap-8" aria-label="Navigation principale">
@@ -43,6 +43,18 @@ export function Header({ className }: HeaderProps) {
             ))}
           </nav>
         </div>
+
+        <nav className="flex lg:hidden items-center justify-center gap-7 pb-3" aria-label="Navigation principale">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="min-h-11 inline-flex items-center text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
       </div>
     </motion.header>
   );

@@ -420,11 +420,11 @@ export default function AdminPage() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-light tracking-wide text-zinc-900 dark:text-white">
+          <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:h-16">
+            <h1 className="text-base sm:text-xl font-light tracking-wide leading-snug text-zinc-900 dark:text-white">
               Administration — Galerie de Jade Bourneuf
             </h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-4">
               <a href="/" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
                 Voir le site
               </a>
@@ -436,7 +436,7 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+      <main className="pt-28 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -464,7 +464,7 @@ export default function AdminPage() {
               exit={{ opacity: 0, y: -20, height: 0 }}
               className="mb-8"
             >
-              <div className="bg-white dark:bg-zinc-800 rounded-2xl p-6 lg:p-8 border border-zinc-100 dark:border-zinc-700 shadow-sm">
+              <div className="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-6 lg:p-8 border border-zinc-100 dark:border-zinc-700 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-medium text-zinc-900 dark:text-white">
                     {editingArtwork ? 'Modifier l\'œuvre' : 'Nouvelle œuvre'}
@@ -587,8 +587,7 @@ export default function AdminPage() {
                                   value={imageUrl}
                                   onChange={e => setImageUrl(e.target.value)}
                                   placeholder="https://res.cloudinary.com/... ou https://..."
-                                  className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                  placeholder="https://res.cloudinary.com/..."
+                                  className="min-w-0 flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                 />
                                 <Button type="button" onClick={handleImageUrl} variant="primary">
                                   Ajouter

@@ -18,11 +18,11 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
 
   return (
     <motion.article
-      className="group cursor-pointer"
+      className="group min-w-0 cursor-pointer touch-manipulation"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: 'easeOut' }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -6 }}
       onClick={onClick}
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
@@ -35,7 +35,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
           alt={artwork.title}
           fill
           className="object-cover transition-all duration-700 group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 359px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
           loading="lazy"
         />
         {(isSold || isReserved) && (
@@ -53,19 +53,19 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
       </div>
 
-      <div className="mt-4 space-y-2">
-        <h3 className="text-lg font-medium text-zinc-900 dark:text-white group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition-colors">
+      <div className="mt-3 sm:mt-4 space-y-2 min-w-0">
+        <h3 className="text-base sm:text-lg font-medium text-zinc-900 dark:text-white group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition-colors break-words">
           {artwork.title}
         </h3>
 
-        <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
           <span>{formatDimensions(artwork)}</span>
           <span aria-hidden="true">·</span>
-          <span>{artwork.technique}</span>
+          <span className="min-w-0 break-words">{artwork.technique}</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="text-base font-semibold text-zinc-900 dark:text-white">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-white">
             {formatPrice(artwork.price)}
           </span>
           <span

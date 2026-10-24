@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Link } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 // Instagram icon component
 function InstagramIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
@@ -36,7 +35,7 @@ function InstagramIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
 
 export function Contact() {
   return (
-    <section id="contact" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-900" aria-labelledby="contact-title">
+    <section id="contact" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-900" aria-labelledby="contact-title">
       <div className="max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -49,38 +48,38 @@ export function Contact() {
             <span className="text-xs font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
               Contact
             </span>
-            <h2 id="contact-title" className="text-4xl lg:text-5xl font-light tracking-tight text-zinc-900 dark:text-white mt-4">
+            <h2 id="contact-title" className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-zinc-900 dark:text-white mt-4">
               Une question ?<br />
               <span className="font-medium">Écrivez-moi</span>
             </h2>
           </div>
 
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            Pour toute demande d'acquisition, de commande personnalisée ou simplement pour partager
+          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
+            Pour toute demande d&apos;acquisition, de commande personnalisée ou simplement pour partager
             votre propre rencontre avec la féerie, la porte est ouverte.
           </p>
 
-          <div className="grid sm:grid-cols-[max-content_1fr] gap-6 w-full max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl mx-auto">
             <a
               href="mailto:jade.bourneuf.art@gmail.com"
-              className="group flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
+              className="group min-w-0 flex items-start gap-3 sm:gap-4 p-4 sm:p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all text-left"
             >
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0">
                 <Mail className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div className="whitespace-nowrap">
+              <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Par la poste des hiboux</p>
-                <p className="text-zinc-900 dark:text-white font-medium">jade.bourneuf.art@gmail.com</p>
+                <p className="text-sm sm:text-base text-zinc-900 dark:text-white font-medium break-all">jade.bourneuf.art@gmail.com</p>
               </div>
             </a>
 
-            <div className="flex items-start gap-4 p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 text-left">
+            <div className="min-w-0 flex items-start gap-3 sm:gap-4 p-4 sm:p-6 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-100 dark:border-zinc-700 text-left">
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-600 dark:text-emerald-400 flex-shrink-0">
                 <MapPin className="w-6 h-6" aria-hidden="true" />
               </div>
-              <div className="whitespace-nowrap">
+              <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Atelier</p>
-                <p className="text-zinc-900 dark:text-white font-medium break-words">Lisière de la forêt de Brocéliande</p>
+                <p className="text-sm sm:text-base text-zinc-900 dark:text-white font-medium break-words">Lisière de la forêt de Brocéliande</p>
               </div>
             </div>
           </div>
