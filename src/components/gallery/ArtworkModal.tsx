@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { X, Maximize, Minimize, ShoppingBag, Info, Loader2 } from 'lucide-react';
 import { Artwork } from '@/types/artwork';
-import { formatPrice, formatDimensions, getStatusColor } from '@/lib/utils';
+import { formatPrice, formatUsdEstimate, formatDimensions, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
 import { useLocale } from '@/components/LocaleProvider';
@@ -18,7 +18,7 @@ interface ArtworkModalProps {
 }
 
 export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkModalProps) {
-  const { locale, t } = useLocale();
+  const { locale, usdPerEur, t } = useLocale();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [offerAmount, setOfferAmount] = useState(String(artwork?.price ?? 0));
@@ -56,6 +56,8 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
 
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
+  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
+  const usdOffer = formatUsdEstimate(Number(offerAmount), usdPerEur, locale);
 
   const handlePurchase = async () => {
     const numericOffer = Number(offerAmount);
@@ -165,6 +167,11 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                       <span className="text-xl font-semibold text-zinc-900 dark:text-white">
                         {formatPrice(artwork.price, locale)}
                       </span>
+                      {usdMinimum && (
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {t('currency.approxShort', { amount: usdMinimum })}
+                        </p>
+                      )}
                     </div>
                     <span
                       className={cn(
@@ -246,6 +253,11 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       {t('offer.help')}
                     </p>
+                    {offerAmount && usdOffer && (
+                      <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        {t('currency.approxShort', { amount: usdOffer })}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -262,11 +274,12 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                       {Object.entries(SHIPPING_ZONES).map(([key, zone]) => (
                         <option key={key} value={key}>
                           {t(`shipping.${key}` as 'shipping.france' | 'shipping.eu' | 'shipping.world')} — {formatPrice(zone.priceCents / 100, locale)}
+                          {usdPerEur ? ` (${t('currency.approxShort', { amount: formatUsdEstimate(zone.priceCents / 100, usdPerEur, locale) ?? '' })})` : ''}
                         </option>
                       ))}
                     </select>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {t('shipping.testFees')}
+                      {t('shipping.testFees')} {t('currency.checkoutDisclaimer')}
                     </p>
                   </div>
 

@@ -83,6 +83,10 @@ export async function POST(request: NextRequest) {
     reservationAcquired = true;
 
     const shipping = SHIPPING_ZONES[shippingZone];
+    const exchangeRate = await kv.get<{ usdPerEur?: number; fetchedAt?: number }>('eur_usd_daily_rate');
+    const usdPerEur = exchangeRate?.fetchedAt && Date.now() - exchangeRate.fetchedAt < 7 * 24 * 60 * 60 * 1000
+      ? exchangeRate.usdPerEur
+      : undefined;
     const artworkImage = artwork.image.startsWith('https://') ? artwork.image : undefined;
     const origin = parsedBaseUrl.origin;
     const expiresAt = Math.floor(Date.now() / 1000) + 31 * 60;
@@ -129,6 +133,7 @@ export async function POST(request: NextRequest) {
         artworkTitle: artwork.title,
         shippingZone,
         offerAmountCents: String(amountInCents),
+        ...(usdPerEur && Number.isFinite(usdPerEur) ? { usdPerEur: String(usdPerEur) } : {}),
         reservationToken,
       },
       payment_intent_data: {

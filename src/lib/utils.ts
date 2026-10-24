@@ -15,6 +15,17 @@ export function formatPrice(price: number, locale: SiteLocale = 'fr'): string {
   }).format(price);
 }
 
+export function formatUsdEstimate(euroAmount: number, usdPerEur: number | null, locale: SiteLocale): string | null {
+  if (!usdPerEur || !Number.isFinite(euroAmount) || !Number.isFinite(usdPerEur)) return null;
+  const roundedDollars = Math.round(euroAmount * usdPerEur);
+  const numberLocale = locale === 'fr' ? 'fr-FR' : locale === 'de' ? 'de-DE' : 'en-US';
+  return new Intl.NumberFormat(numberLocale, {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(roundedDollars);
+}
+
 export function formatDimensions(artwork: { width: number; height: number; depth?: number }): string {
   const { width, height, depth } = artwork;
   if (depth) {

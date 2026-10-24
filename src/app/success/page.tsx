@@ -3,7 +3,7 @@ import { cookies, headers } from 'next/headers';
 import Link from 'next/link';
 import { CheckCircle, CircleAlert } from 'lucide-react';
 import { getStripeClient } from '@/lib/stripe';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatUsdEstimate } from '@/lib/utils';
 import { localeFromGeo, messages, SiteLocale, translate } from '@/lib/messages';
 
 interface SuccessPageProps {
@@ -35,6 +35,7 @@ async function SuccessDetails({ searchParams }: SuccessPageProps) {
   let paymentConfirmed = false;
   let artworkTitle: string | undefined;
   let offerAmount: string | undefined;
+  let usdOfferAmount: string | null = null;
 
   if (sessionId?.startsWith('cs_test_')) {
     try {
@@ -44,6 +45,8 @@ async function SuccessDetails({ searchParams }: SuccessPageProps) {
       const offerAmountCents = Number(session.metadata?.offerAmountCents);
       if (Number.isSafeInteger(offerAmountCents) && offerAmountCents > 0) {
         offerAmount = formatPrice(offerAmountCents / 100, locale);
+        const usdPerEur = Number(session.metadata?.usdPerEur);
+        usdOfferAmount = formatUsdEstimate(offerAmountCents / 100, usdPerEur, locale);
       }
     } catch (error) {
       console.error('Impossible de vérifier la session Stripe:', error);
@@ -70,7 +73,7 @@ async function SuccessDetails({ searchParams }: SuccessPageProps) {
           {paymentConfirmed ? (
             <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
               {artworkTitle ? t('success.paid', { title: artworkTitle }) : t('success.paidGeneric')}
-              {offerAmount && <> {t('success.offerPaid', { amount: offerAmount })}</>}
+              {offerAmount && <> {t('success.offerPaid', { amount: offerAmount })}{usdOfferAmount && ` (${t('currency.approxShort', { amount: usdOfferAmount })})`}</>}
               {' '}{t('success.shipping')}
             </p>
           ) : (

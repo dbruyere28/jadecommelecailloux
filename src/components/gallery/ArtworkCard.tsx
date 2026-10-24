@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Artwork } from '@/types/artwork';
-import { formatPrice, formatDimensions, getStatusColor } from '@/lib/utils';
+import { formatPrice, formatUsdEstimate, formatDimensions, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/components/LocaleProvider';
 
@@ -14,9 +14,10 @@ interface ArtworkCardProps {
 }
 
 export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
-  const { locale, t } = useLocale();
+  const { locale, usdPerEur, t } = useLocale();
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
+  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
 
   return (
     <motion.article
@@ -67,8 +68,9 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm sm:text-base font-semibold text-zinc-900 dark:text-white">
-            {t('price.from')} {formatPrice(artwork.price, locale)}
+          <span className="flex flex-col text-sm sm:text-base font-semibold text-zinc-900 dark:text-white">
+            <span>{t('price.from')} {formatPrice(artwork.price, locale)}</span>
+            {usdMinimum && <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">{t('currency.approxShort', { amount: usdMinimum })}</span>}
           </span>
           <span
             className={cn(

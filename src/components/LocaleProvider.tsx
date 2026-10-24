@@ -5,6 +5,7 @@ import { MessageKey, SiteLocale, translate } from '@/lib/messages';
 
 interface LocaleContextValue {
   locale: SiteLocale;
+  usdPerEur: number | null;
   setLocale: (locale: SiteLocale) => void;
   t: (key: MessageKey, values?: Record<string, string | number>) => string;
 }
@@ -13,6 +14,7 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<SiteLocale>('fr');
+  const [usdPerEur, setUsdPerEur] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -39,6 +41,23 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    fetch('/api/exchange-rate', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Exchange rate lookup failed');
+        return response.json() as Promise<{ usdPerEur: number }>;
+      })
+      .then((data) => {
+        if (active && Number.isFinite(data.usdPerEur)) setUsdPerEur(data.usdPerEur);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const setLocale = useCallback((nextLocale: SiteLocale) => {
     setLocaleState(nextLocale);
     document.documentElement.lang = nextLocale;
@@ -51,9 +70,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<LocaleContextValue>(() => ({
     locale,
+    usdPerEur,
     setLocale,
     t: (key, values) => translate(locale, key, values),
-  }), [locale, setLocale]);
+  }), [locale, setLocale, usdPerEur]);
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
