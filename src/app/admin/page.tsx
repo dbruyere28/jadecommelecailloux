@@ -4,12 +4,8 @@ import { useState, useEffect, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Edit, Trash2, Plus, Save, X, Loader2, Image as ImageIcon, Hash, Upload, FileImage } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { artworks } from '@/data/artworks';
 import { Artwork, ArtworkFormData } from '@/types/artwork';
 import { cn } from '@/lib/utils';
-
-const STORAGE_KEY = 'artworks_catalog';
-const DELETED_KEY = 'artworks_deleted';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,33 +33,31 @@ export default function AdminPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
   const [imageUrl, setImageUrl] = useState<string>('');
-  const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
-  const [deletedStaticIds, setDeletedStaticIds] = useState<string[]>([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const STORAGE_KEY = 'artworks_catalog';
+  const DELETED_KEY = 'artworks_deleted';
+
+  // Load artworks from API
+  const loadArtworks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/artworks');
+      const data = await response.json();
+      if (data.artworks) {
+        setArtworks(data.artworks);
+      }
+    } catch (error) {
+      console.error('Error loading artworks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, year: new Date().getFullYear() }));
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setLocalArtworks(JSON.parse(stored));
-      } catch {
-        setLocalArtworks([]);
-      }
-    }
-    const deleted = localStorage.getItem(DELETED_KEY);
-    if (deleted) {
-      try {
-        setDeletedStaticIds(JSON.parse(deleted));
-      } catch {
-        setDeletedStaticIds([]);
-      }
-    }
+    loadArtworks();
   }, []);
-
-  const allArtworks = [
-    ...artworks.filter(a => !deletedStaticIds.includes(a.id)),
-    ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))
-  ];
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -194,7 +188,7 @@ export default function AdminPage() {
       technique: 'Acrylique sur toile',
       price: 50,
       status: 'available',
-      year: new Date().getFullYear(),
+      year: 2024,
       category: '',
       tags: '',
       cloudinaryPublicId: '',
@@ -229,7 +223,7 @@ export default function AdminPage() {
       return;
     }
 
-    const newArtwork: Artwork = {
+    const newArtwork = {
       id: editingArtwork?.id || `art_${Date.now()}`,
       title: formData.title,
       description: formData.description,
@@ -246,24 +240,28 @@ export default function AdminPage() {
       cloudinaryPublicId: formData.cloudinaryPublicId || undefined,
     };
 
-    const updatedArtworks = editingArtwork
-      ? localArtworks.map(a => a.id === editingArtwork.id ? newArtwork : a)
-      : [newArtwork, ...localArtworks];
-
     try {
-      setLocalArtworks(updatedArtworks);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedArtworks));
-      
-      // Dispatch storage event for other tabs/pages
-      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
-      
+      const response = await fetch('/api/artworks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artwork: newArtwork, action: editingArtwork ? 'update' : 'create' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur lors de la sauvegarde');
+      }
+
+      // Refresh artworks list
+      await loadArtworks();
       resetForm();
     } catch (err) {
       console.error('Erreur sauvegarde:', err);
       if (err instanceof DOMException && err.name === 'QuotaExceededError') {
         setSaveError('L\'image est trop volumineuse pour le stockage local. Réduisez la taille de l\'image (max ~1-2 Mo recommandé).');
       } else {
-        setSaveError('Erreur lors de la sauvegarde. Réessayez.');
+        setSaveError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde. Réessayez.');
       }
     } finally {
       setSaving(false);
@@ -294,7 +292,7 @@ export default function AdminPage() {
   const handleDelete = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ?')) {
       // Find the artwork to get cloudinaryPublicId
-      const artworkToDelete = allArtworks.find(a => a.id === id);
+      const artworkToDelete = artworks.find(a => a.id === id);
       const cloudinaryPublicId = artworkToDelete?.cloudinaryPublicId;
 
       // Delete from Cloudinary if there's a publicId
@@ -309,45 +307,48 @@ export default function AdminPage() {
         }
       }
 
-      const isStatic = artworks.some(a => a.id === id);
-      if (isStatic) {
-        // Mark static artwork as deleted
-        setDeletedStaticIds(prev => {
-          const updated = [...prev, id];
-          localStorage.setItem(DELETED_KEY, JSON.stringify(updated));
-          window.dispatchEvent(new StorageEvent('storage', { key: DELETED_KEY }));
-          return updated;
+      try {
+        const response = await fetch('/api/artworks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artwork: { id }, action: 'delete' }),
         });
-      } else {
-        // Remove from localStorage artworks
-        const updated = localArtworks.filter(a => a.id !== id);
-        setLocalArtworks(updated);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+
+        if (!response.ok) {
+          throw new Error('Erreur lors de la suppression');
+        }
+
+        // Refresh artworks list
+        await loadArtworks();
+      } catch (err) {
+        console.error('Erreur suppression:', err);
+        alert('Erreur lors de la suppression');
       }
     }
   };
 
-  const handleToggleStatus = (artwork: Artwork) => {
+  const handleToggleStatus = async (artwork: Artwork) => {
     const statuses: Artwork['status'][] = ['available', 'sold', 'reserved'];
     const currentIndex = statuses.indexOf(artwork.status);
     const newStatus = statuses[(currentIndex + 1) % statuses.length];
     const updated = { ...artwork, status: newStatus };
 
-    const isStatic = artworks.some(a => a.id === artwork.id);
-    if (isStatic) {
-      // Create a local copy with updated status (overrides static)
-      const updatedList = localArtworks.find(a => a.id === artwork.id)
-        ? localArtworks.map(a => a.id === artwork.id ? updated : a)
-        : [updated, ...localArtworks];
-      setLocalArtworks(updatedList);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
-    } else {
-      const updatedList = localArtworks.map(a => a.id === artwork.id ? updated : a);
-      setLocalArtworks(updatedList);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-      window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+    try {
+      const response = await fetch('/api/artworks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artwork: updated, action: 'update' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+
+      // Refresh artworks list
+      await loadArtworks();
+    } catch (err) {
+      console.error('Erreur mise à jour:', err);
+      alert('Erreur lors de la mise à jour');
     }
   };
 
@@ -447,7 +448,7 @@ export default function AdminPage() {
                 Gestion des œuvres
               </h2>
               <p className="text-zinc-500 dark:text-zinc-400 mt-1">
-                {allArtworks.length} œuvre{allArtworks.length > 1 ? 's' : ''} au total
+                {artworks.length} œuvre{artworks.length > 1 ? 's' : ''} au total
               </p>
             </div>
             <Button onClick={() => { setEditingArtwork(null); resetForm(); setShowForm(true); }}>
@@ -587,6 +588,7 @@ export default function AdminPage() {
                                   onChange={e => setImageUrl(e.target.value)}
                                   placeholder="https://res.cloudinary.com/... ou https://..."
                                   className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                  placeholder="https://res.cloudinary.com/..."
                                 />
                                 <Button type="button" onClick={handleImageUrl} variant="primary">
                                   Ajouter
@@ -729,22 +731,22 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                    {saveError && (
-                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm" role="alert">
-                        {saveError}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                      <Button type="button" variant="secondary" onClick={resetForm}>
-                        Annuler
-                      </Button>
-                      <Button type="submit" loading={saving}>
-                        <Save className="w-4 h-4 mr-2" aria-hidden="true" />
-                        {editingArtwork ? 'Mettre à jour' : 'Créer'}
-                      </Button>
+                  {saveError && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm" role="alert">
+                      {saveError}
                     </div>
-                  </form>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                    <Button type="button" variant="secondary" onClick={resetForm}>
+                      Annuler
+                    </Button>
+                    <Button type="submit" loading={saving}>
+                      <Save className="w-4 h-4 mr-2" aria-hidden="true" />
+                      {editingArtwork ? 'Mettre à jour' : 'Créer'}
+                    </Button>
+                  </div>
+                </form>
               </div>
             </motion.div>
           )}
@@ -768,7 +770,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700">
-                  {allArtworks.map((artwork, index) => (
+                  {artworks.map((artwork, index) => (
                     <motion.tr
                       key={artwork.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -834,7 +836,7 @@ export default function AdminPage() {
               </table>
             </div>
 
-            {allArtworks.length === 0 && (
+            {artworks.length === 0 && (
               <div className="p-12 text-center">
                 <ImageIcon className="w-12 h-12 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" aria-hidden="true" />
                 <p className="text-zinc-500 dark:text-zinc-400">Aucune œuvre pour le moment</p>

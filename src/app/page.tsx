@@ -10,50 +10,34 @@ import { Contact } from '@/components/Contact';
 import { Footer } from '@/components/Footer';
 import { GalleryGrid } from '@/components/gallery/GalleryGrid';
 import { ArtworkModal } from '@/components/gallery/ArtworkModal';
-import { artworks, getAvailableArtworks } from '@/data/artworks';
 import { Artwork } from '@/types/artwork';
 import { cn } from '@/lib/utils';
-
-const STORAGE_KEY = 'artworks_catalog';
-const DELETED_KEY = 'artworks_deleted';
 
 export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [localArtworks, setLocalArtworks] = useState<Artwork[]>([]);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadArtworks = useCallback(() => {
+  const loadArtworks = useCallback(async () => {
     setIsLoading(true);
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setLocalArtworks(JSON.parse(stored));
-      } catch {
-        setLocalArtworks([]);
+    try {
+      const response = await fetch('/api/artworks');
+      const data = await response.json();
+      if (data.artworks) {
+        setArtworks(data.artworks);
       }
-    } else {
-      setLocalArtworks([]);
+    } catch (error) {
+      console.error('Error loading artworks:', error);
+      setArtworks([]);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     loadArtworks();
-    
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY || e.key === DELETED_KEY) {
-        loadArtworks();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, [loadArtworks]);
-
-  // Combine static artworks with localStorage artworks (avoid duplicates by id)
-  const allArtworks = [...artworks, ...localArtworks.filter(a => !artworks.some(oa => oa.id === a.id))];
-  const availableArtworks = allArtworks.filter(a => a.status === 'available');
 
   const handleArtworkClick = (artwork: Artwork) => {
     setSelectedArtwork(artwork);
@@ -102,7 +86,7 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {availableArtworks.length} œuvre{availableArtworks.length > 1 ? 's' : ''} disponible{availableArtworks.length > 1 ? 's' : ''}
+                {artworks.length} œuvre{artworks.length > 1 ? 's' : ''} disponible{artworks.length > 1 ? 's' : ''}
               </p>
               <button
                 onClick={handleRefreshGallery}
@@ -135,26 +119,23 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                ))}
+                })}
               </div>
             ) : (
               <>
                 <GalleryGrid
-                  artworks={availableArtworks}
+                  artworks={artworks}
                   onArtworkClick={handleArtworkClick}
                   className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 />
 
-                {availableArtworks.length === 0 && (
+                {artworks.length === 0 && (
                   <div className="text-center py-16">
                     <p className="text-zinc-500 dark:text-zinc-400 text-lg mb-4">
                       Aucune œuvre disponible pour le moment.
                     </p>
                     <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-6">
-                      Les œuvres sont gérées localement dans votre navigateur.
-                    </p>
-                    <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                      Ajoutez vos œuvres via l'
+                      Les œuvres sont synchronisées via le cloud. Ajoutez vos œuvres via l'
                       <a href="/admin" className="underline hover:text-emerald-500">administration</a>
                       {' '}ou rafraîchissez la galerie après en avoir ajouté.
                     </p>
