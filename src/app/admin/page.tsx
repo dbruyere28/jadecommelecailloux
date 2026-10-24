@@ -11,6 +11,10 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
+  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+  const [maintenanceReady, setMaintenanceReady] = useState(false);
+  const [maintenanceSaving, setMaintenanceSaving] = useState(false);
+  const [maintenanceError, setMaintenanceError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
   const [formData, setFormData] = useState<ArtworkFormData>({
@@ -74,6 +78,18 @@ export default function AdminPage() {
       if (response.ok && data.success) {
         setIsAuthenticated(true);
         setPasswordError(false);
+        setMaintenanceReady(false);
+        try {
+          const maintenanceResponse = await fetch('/api/maintenance', { cache: 'no-store' });
+          const maintenanceData: { maintenanceEnabled?: boolean; error?: string } = await maintenanceResponse.json();
+          if (!maintenanceResponse.ok) throw new Error(maintenanceData.error || 'Impossible de lire le mode maintenance.');
+          setMaintenanceEnabled(maintenanceData.maintenanceEnabled === true);
+          setMaintenanceReady(true);
+          setMaintenanceError(null);
+        } catch (error) {
+          setMaintenanceError(error instanceof Error ? error.message : 'Impossible de lire le mode maintenance.');
+          setMaintenanceReady(false);
+        }
       } else {
         setPasswordError(true);
         setTimeout(() => setPasswordError(false), 2000);
@@ -81,6 +97,26 @@ export default function AdminPage() {
     } catch {
       setPasswordError(true);
       setTimeout(() => setPasswordError(false), 2000);
+    }
+  };
+
+  const handleToggleMaintenance = async () => {
+    setMaintenanceSaving(true);
+    setMaintenanceError(null);
+
+    try {
+      const response = await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set', enabled: !maintenanceEnabled, password }),
+      });
+      const data: { maintenanceEnabled?: boolean; error?: string } = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Impossible de modifier le mode maintenance.');
+      setMaintenanceEnabled(data.maintenanceEnabled === true);
+    } catch (error) {
+      setMaintenanceError(error instanceof Error ? error.message : 'Impossible de modifier le mode maintenance.');
+    } finally {
+      setMaintenanceSaving(false);
     }
   };
 
@@ -438,6 +474,32 @@ export default function AdminPage() {
 
       <main className="pt-28 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          <section className="mb-8 flex flex-col gap-4 rounded-2xl border border-zinc-100 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-800 sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-labelledby="maintenance-settings-title">
+            <div>
+              <h2 id="maintenance-settings-title" className="font-medium text-zinc-900 dark:text-white">
+                Mode maintenance
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                {maintenanceEnabled
+                  ? 'Actif : les visiteurs devront saisir le mot de passe.'
+                  : 'Inactif : la galerie est visible par tous.'}
+              </p>
+              {maintenanceError && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
+                  {maintenanceError}
+                </p>
+              )}
+            </div>
+            <Button
+              variant={maintenanceEnabled ? 'secondary' : 'primary'}
+              onClick={handleToggleMaintenance}
+              loading={maintenanceSaving}
+              disabled={!maintenanceReady}
+            >
+              {maintenanceEnabled ? 'Désactiver la maintenance' : 'Activer la maintenance'}
+            </Button>
+          </section>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -56,3 +56,7 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 Utilise la clé `whsec_...` affichée par la commande comme `STRIPE_WEBHOOK_SECRET`. Une carte de test Stripe courante est `4242 4242 4242 4242` (date future et CVC quelconque).
 
 Les frais de livraison proposés pour les essais sont provisoires : France 8 €, Union européenne hors France 15 €, reste du monde 30 €. Les clés `sk_live_` sont volontairement refusées ; avant tout encaissement réel, il faudra valider les tarifs, la configuration de livraison et le passage explicite en mode live.
+
+## Mode maintenance
+
+Le mode maintenance se règle dans **Administration → Mode maintenance** et son état est stocké dans Upstash KV. Quand il est activé, le site demande le mot de passe défini par `MAINTENANCE_PASSWORD`. L’accès est mémorisé uniquement dans le navigateur qui a saisi ce mot de passe (cookie sécurisé de 12 heures) ; le bouton d’administration reste le seul moyen de désactiver la maintenance pour tout le monde. Configure ce mot de passe comme variable d’environnement dans Vercel avant d’activer le mode.

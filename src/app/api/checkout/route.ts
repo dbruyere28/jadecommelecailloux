@@ -1,16 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { kv } from '@vercel/kv';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { Artwork } from '@/types/artwork';
 import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
 import { getAllowedShippingCountries } from '@/lib/shipping-countries.server';
+import { hasMaintenanceAccess, MAINTENANCE_ACCESS_COOKIE, MAINTENANCE_KEY } from '@/lib/maintenance-auth.server';
 import { getStripeClient } from '@/lib/stripe';
 
 const ARTWORKS_KEY = 'artworks_catalog';
 const RESERVATION_TTL_SECONDS = 60 * 60;
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let reservationKey: string | undefined;
   let reservationToken: string | undefined;
   let reservationAcquired = false;
@@ -28,6 +29,11 @@ export async function POST(request: Request) {
 
     if (!shippingZone || !Object.hasOwn(SHIPPING_ZONES, shippingZone)) {
       return NextResponse.json({ error: 'Choisissez une zone de livraison valide.' }, { status: 400 });
+    }
+
+    const maintenanceEnabled = await kv.get<boolean>(MAINTENANCE_KEY);
+    if (maintenanceEnabled && !hasMaintenanceAccess(request.cookies.get(MAINTENANCE_ACCESS_COOKIE)?.value)) {
+      return NextResponse.json({ error: 'Les achats sont suspendus pendant la maintenance.' }, { status: 503 });
     }
 
     stripe = getStripeClient();

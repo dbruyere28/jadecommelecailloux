@@ -13,6 +13,7 @@ import { ArtworkModal } from '@/components/gallery/ArtworkModal';
 import { Artwork } from '@/types/artwork';
 import { cn } from '@/lib/utils';
 import { ShippingZone } from '@/lib/shipping-zones';
+import { MaintenanceGate } from '@/components/MaintenanceGate';
 
 export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
@@ -20,6 +21,8 @@ export default function Home() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [maintenanceAccess, setMaintenanceAccess] = useState<'checking' | 'open' | 'locked' | 'error'>('checking');
+  const [maintenanceAccessConfigured, setMaintenanceAccessConfigured] = useState(false);
 
   const requestArtworks = useCallback(async () => {
     const response = await fetch('/api/artworks', { cache: 'no-store' });
@@ -33,15 +36,32 @@ export default function Home() {
   useEffect(() => {
     let isMounted = true;
 
-    requestArtworks()
-      .then((loadedArtworks) => {
-        if (isMounted) setArtworks(loadedArtworks);
+    fetch('/api/maintenance', { cache: 'no-store' })
+      .then(async (response) => {
+        const data: { maintenanceEnabled?: boolean; authorized?: boolean; accessConfigured?: boolean; error?: string } = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Impossible de vérifier le mode maintenance.');
+        return data;
+      })
+      .then(async (status) => {
+        if (!isMounted) return;
+        setMaintenanceAccessConfigured(status.accessConfigured === true);
+
+        if (status.maintenanceEnabled && !status.authorized) {
+          setMaintenanceAccess('locked');
+          return;
+        }
+
+        setMaintenanceAccess('open');
+        try {
+          setArtworks(await requestArtworks());
+        } catch (error) {
+          console.error('Error loading artworks:', error);
+          if (isMounted) setLoadError('La galerie est momentanément indisponible. Réessayez dans quelques instants.');
+        }
       })
       .catch((error: unknown) => {
-        console.error('Error loading artworks:', error);
-        if (isMounted) {
-          setLoadError('La galerie est momentanément indisponible. Réessayez dans quelques instants.');
-        }
+        console.error('Error checking maintenance mode:', error);
+        if (isMounted) setMaintenanceAccess('error');
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -90,6 +110,44 @@ export default function Home() {
     setLoadError(null);
     loadArtworks();
   };
+
+  const handleMaintenanceUnlock = () => {
+    setMaintenanceAccess('open');
+    setIsLoading(true);
+    setLoadError(null);
+    loadArtworks();
+  };
+
+  if (maintenanceAccess === 'checking') {
+    return (
+      <main className="min-h-[100svh] flex items-center justify-center bg-zinc-950 text-emerald-200" aria-busy="true">
+        <Loader2 className="h-8 w-8 animate-spin" aria-label="Vérification de l’accès au site" />
+      </main>
+    );
+  }
+
+  if (maintenanceAccess === 'locked') {
+    return (
+      <MaintenanceGate
+        accessConfigured={maintenanceAccessConfigured}
+        onUnlock={handleMaintenanceUnlock}
+      />
+    );
+  }
+
+  if (maintenanceAccess === 'error') {
+    return (
+      <main className="min-h-[100svh] flex items-center justify-center bg-zinc-950 px-4 text-center text-white">
+        <div className="max-w-md space-y-5">
+          <h1 className="text-3xl font-light">La galerie est momentanément inaccessible</h1>
+          <p className="text-zinc-300">Impossible de vérifier l’état du site. Réessaie dans quelques instants.</p>
+          <button onClick={() => window.location.reload()} className="min-h-11 rounded-xl bg-emerald-200 px-6 font-medium text-emerald-950">
+            Réessayer
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white antialiased">
