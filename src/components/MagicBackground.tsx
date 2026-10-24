@@ -162,7 +162,6 @@ export function MagicBackground() {
       initializedRef.current = true;
     }
 
-    const ctx = canvasRef.current.getContext('2d')!;
     let gradientTime = 0;
 
     const animate = (timestamp: number) => {
