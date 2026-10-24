@@ -40,6 +40,30 @@ export function About() {
               et toile brute.
             </p>
           </div>
+
+          <div className="border-t border-zinc-100 dark:border-zinc-800 pt-8 space-y-4">
+            <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-white">
+              Le secret du <span className="text-emerald-600 dark:text-emerald-400">x</span>
+            </h3>
+            <div className="space-y-4 text-base sm:text-lg leading-relaxed text-zinc-600 dark:text-zinc-300">
+              <p>
+                On raconte qu’un soir, au bord de la forêt, Jade trouva un petit caillou lisse. Il était seul,
+                mais lorsqu’elle le posa dans sa paume, elle entendit mille histoires : le chant des ruisseaux,
+                le sommeil des montagnes, le secret des graines sous la terre.
+              </p>
+              <p>
+                Sur sa surface, deux fines lignes se croisaient comme un x. Ce n’était pas une faute, mais une
+                porte : là où les chemins se rencontrent, les mondes commencent à se mêler.
+              </p>
+              <p>
+                Alors Jade garda le x. Depuis, son caillou n’est plus tout à fait seul. Il porte en lui tous les
+                autres — et un peu de magie en plus.
+              </p>
+              <p className="font-medium text-emerald-700 dark:text-emerald-300">
+                « Jade comme le cailloux » : un petit mystère d’orthographe pour ouvrir la porte aux grands imaginaires.
+              </p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
