@@ -1,25 +1,15 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { MagicBackground, FloatingOrbs, FloatingSparkles, GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
+import { GradientText, FloatIn, StaggerContainer, StaggerItem } from '@/components/MagicBackground';
 
 export function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.25;
-    }
-  }, []);
-
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center pt-24 lg:pt-20 overflow-hidden" aria-labelledby="hero-title">
-      {/* Magical animated background - fills entire viewport */}
-      <div className="absolute inset-0 z-0">
+      {/* Slow-motion video background - fills the hero without blocking the page */}
+      <div className="pointer-events-none absolute inset-0 z-0">
         <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
           autoPlay
           muted
           loop
@@ -28,15 +18,8 @@ export function Hero() {
           aria-hidden="true"
           tabIndex={-1}
         >
-          <source
-            src="https://res.cloudinary.com/lhs8biff/video/upload/v1792831935/souffle_pissenlit.mp4"
-            type="video/mp4"
-          />
+          <source src="/souffle-pissenlit-slow.mp4" type="video/mp4" />
         </video>
-        <MagicBackground />
-        <FloatingOrbs />
-        <FloatingSparkles />
-        
         {/* Subtle overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/60 via-emerald-900/40 to-amber-950/60" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.4)_100%)]" aria-hidden="true" />

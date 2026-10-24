@@ -21,7 +21,7 @@ export default function Home() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const requestArtworks = useCallback(async () => {
-    const response = await fetch('/api/artworks');
+    const response = await fetch('/api/artworks', { cache: 'no-store' });
     const data: { artworks?: Artwork[]; error?: string } = await response.json();
     if (!response.ok || !Array.isArray(data.artworks)) {
       throw new Error(data.error || 'Impossible de charger la galerie.');
