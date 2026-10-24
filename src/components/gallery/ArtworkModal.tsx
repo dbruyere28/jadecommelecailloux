@@ -3,21 +3,25 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { X, Maximize, Minimize, ShoppingBag, Info } from 'lucide-react';
+import { X, Maximize, Minimize, ShoppingBag, Info, Loader2 } from 'lucide-react';
 import { Artwork } from '@/types/artwork';
 import { formatPrice, formatDimensions, getStatusLabel, getStatusColor } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { SHIPPING_ZONES, ShippingZone } from '@/lib/shipping-zones';
 
 interface ArtworkModalProps {
   artwork: Artwork | null;
   isOpen: boolean;
   onClose: () => void;
-  onPurchase: () => void;
+  onPurchase: (shippingZone: ShippingZone) => Promise<void>;
 }
 
 export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [shippingZone, setShippingZone] = useState<ShippingZone>('france');
+  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -49,6 +53,17 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
 
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
+
+  const handlePurchase = async () => {
+    setIsStartingCheckout(true);
+    setCheckoutError(null);
+    try {
+      await onPurchase(shippingZone);
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : 'Impossible de lancer le paiement. Réessayez.');
+      setIsStartingCheckout(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -198,16 +213,50 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
               </div>
 
               {!isSold && !isReserved && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={onPurchase}
-                  className="w-full py-4 px-6 bg-zinc-900 text-white font-medium rounded-xl hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2"
-                  disabled={isSold || isReserved}
-                >
-                  <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-                  Acquérir cette œuvre
-                </motion.button>
+                <div className="mt-6 space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="shipping-zone" className="block text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      Zone de livraison
+                    </label>
+                    <select
+                      id="shipping-zone"
+                      value={shippingZone}
+                      onChange={(event) => setShippingZone(event.target.value as ShippingZone)}
+                      disabled={isStartingCheckout}
+                      className="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 text-zinc-900 dark:text-white"
+                    >
+                      {Object.entries(SHIPPING_ZONES).map(([key, zone]) => (
+                        <option key={key} value={key}>
+                          {zone.label} — {formatPrice(zone.priceCents / 100)}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Frais de livraison provisoires pour le mode test.
+                    </p>
+                  </div>
+
+                  {checkoutError && (
+                    <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                      {checkoutError}
+                    </p>
+                  )}
+
+                  <motion.button
+                    whileHover={{ scale: isStartingCheckout ? 1 : 1.02 }}
+                    whileTap={{ scale: isStartingCheckout ? 1 : 0.98 }}
+                    onClick={handlePurchase}
+                    className="w-full min-h-12 py-4 px-6 bg-zinc-900 text-white font-medium rounded-xl hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait"
+                    disabled={isStartingCheckout || isSold || isReserved}
+                  >
+                    {isStartingCheckout ? (
+                      <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <ShoppingBag className="w-5 h-5" aria-hidden="true" />
+                    )}
+                    {isStartingCheckout ? 'Préparation du paiement…' : 'Acquérir cette œuvre'}
+                  </motion.button>
+                </div>
               )}
 
               {(isSold || isReserved) && (

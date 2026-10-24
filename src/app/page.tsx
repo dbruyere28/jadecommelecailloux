@@ -12,6 +12,7 @@ import { GalleryGrid } from '@/components/gallery/GalleryGrid';
 import { ArtworkModal } from '@/components/gallery/ArtworkModal';
 import { Artwork } from '@/types/artwork';
 import { cn } from '@/lib/utils';
+import { ShippingZone } from '@/lib/shipping-zones';
 
 export default function Home() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
@@ -67,10 +68,21 @@ export default function Home() {
     setIsModalOpen(true);
   };
 
-  const handlePurchase = () => {
-    if (selectedArtwork) {
-      window.location.href = `/api/checkout?artworkId=${selectedArtwork.id}`;
+  const handlePurchase = async (shippingZone: ShippingZone) => {
+    if (!selectedArtwork) throw new Error('Aucune œuvre sélectionnée.');
+
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artworkId: selectedArtwork.id, shippingZone }),
+    });
+    const data: { url?: string; error?: string } = await response.json();
+
+    if (!response.ok || !data.url) {
+      throw new Error(data.error || 'Impossible de préparer le paiement. Réessayez.');
     }
+
+    window.location.assign(data.url);
   };
 
   const handleRefreshGallery = () => {
