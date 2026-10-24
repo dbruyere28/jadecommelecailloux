@@ -1,12 +1,14 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { SiteLocale } from '@/lib/messages';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number, locale: 'fr' | 'en' = 'fr'): string {
-  return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+export function formatPrice(price: number, locale: SiteLocale = 'fr'): string {
+  const numberLocale = locale === 'fr' ? 'fr-FR' : locale === 'de' ? 'de-DE' : 'en-GB';
+  return new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 0,

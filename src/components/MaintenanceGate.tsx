@@ -44,11 +44,12 @@ export function MaintenanceGate({ onUnlock, accessConfigured }: MaintenanceGateP
           <select
             id="maintenance-language"
             value={locale}
-            onChange={(event) => setLocale(event.target.value as 'fr' | 'en')}
+            onChange={(event) => setLocale(event.target.value as 'fr' | 'en' | 'de')}
             className="min-h-10 rounded-lg border border-white/15 bg-zinc-900 px-2 text-sm font-medium text-zinc-200"
           >
             <option value="fr">FR</option>
             <option value="en">EN</option>
+            <option value="de">DE</option>
           </select>
         </div>
         <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-300/10 text-emerald-200">

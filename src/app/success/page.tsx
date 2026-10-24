@@ -28,7 +28,7 @@ async function SuccessDetails({ searchParams }: SuccessPageProps) {
   const { session_id: sessionId } = await searchParams;
   const [cookieStore, requestHeaders] = await Promise.all([cookies(), headers()]);
   const savedLocale = cookieStore.get('site_locale')?.value;
-  const locale: SiteLocale = savedLocale === 'fr' || savedLocale === 'en'
+  const locale: SiteLocale = savedLocale === 'fr' || savedLocale === 'en' || savedLocale === 'de'
     ? savedLocale
     : localeFromGeo(requestHeaders.get('x-vercel-ip-country'), requestHeaders.get('accept-language'));
   const t = (key: keyof typeof messages.fr, values?: Record<string, string | number>) => translate(locale, key, values);

@@ -50,11 +50,12 @@ export function Header({ className }: HeaderProps) {
             <select
               id="site-language"
               value={locale}
-              onChange={(event) => setLocale(event.target.value as 'fr' | 'en')}
+              onChange={(event) => setLocale(event.target.value as 'fr' | 'en' | 'de')}
               className="min-h-10 rounded-lg border border-zinc-200 bg-white px-2 text-sm font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
             >
               <option value="fr">FR</option>
               <option value="en">EN</option>
+              <option value="de">DE</option>
             </select>
           </div>
         </div>

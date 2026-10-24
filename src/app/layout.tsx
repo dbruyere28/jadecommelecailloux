@@ -19,11 +19,11 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Jade Bourneuf — Artiste de la Féerie | Galerie des Mondes Invisibles',
+    default: 'Jade Bourneuf — Artiste onirique | Galerie des paysages intérieurs',
     template: '%s | Jade Bourneuf',
   },
-  description: 'Découvrez l\'univers féerique de Jade Bourneuf. Œuvres uniques entre sorcières, forêts enchantées et magie ancestrale. Acquisitions en ligne sécurisées.',
-  keywords: ['artiste féerie', 'galerie art magique', 'peinture sorcières', 'art forêt enchantée', 'achat art fantastique', 'art visionnaire', 'mondes invisibles'],
+  description: 'Découvrez l’univers onirique de Jade Bourneuf : des œuvres uniques inspirées par les rêves, la mémoire et les paysages intérieurs.',
+  keywords: ['art onirique', 'peinture onirique', 'paysages intérieurs', 'art inspiré des rêves', 'art contemporain', 'œuvres originales'],
   authors: [{ name: 'Jade Bourneuf' }],
   creator: 'Jade Bourneuf',
   publisher: 'Jade Bourneuf',
@@ -32,22 +32,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://jade-bourneuf.art',
-    siteName: 'Jade Bourneuf — Artiste de la Féerie',
-    title: 'Jade Bourneuf — Artiste de la Féerie | Galerie des Mondes Invisibles',
-    description: 'Découvrez l\'univers féerique de Jade Bourneuf. Œuvres uniques entre sorcières, forêts enchantées et magie ancestrale.',
+    siteName: 'Jade Bourneuf — Artiste onirique',
+    title: 'Jade Bourneuf — Artiste onirique | Galerie des paysages intérieurs',
+    description: 'Des œuvres uniques inspirées par les rêves, la mémoire et les paysages intérieurs.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Jade Bourneuf - Artiste de la Féerie',
+        alt: 'Jade Bourneuf — artiste onirique',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Jade Bourneuf — Artiste de la Féerie',
-    description: 'Découvrez l\'univers féerique de Jade Bourneuf. Œuvres uniques entre sorcières, forêts enchantées et magie ancestrale.',
+    title: 'Jade Bourneuf — Artiste onirique',
+    description: 'Des œuvres uniques inspirées par les rêves, la mémoire et les paysages intérieurs.',
     images: ['/og-image.jpg'],
   },
   verification: {

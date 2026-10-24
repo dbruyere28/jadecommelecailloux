@@ -28,7 +28,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         if (!active) return;
-        const browserLocale = navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+        const browserLanguage = navigator.language.toLowerCase().split('-')[0];
+        const browserLocale: SiteLocale = browserLanguage === 'fr' || browserLanguage === 'de' ? browserLanguage : 'en';
         setLocaleState(browserLocale);
         document.documentElement.lang = browserLocale;
       });

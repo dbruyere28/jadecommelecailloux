@@ -5,7 +5,7 @@ const LOCALE_COOKIE = 'site_locale';
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 function isSupportedLocale(value: unknown): value is SiteLocale {
-  return value === 'fr' || value === 'en';
+  return value === 'fr' || value === 'en' || value === 'de';
 }
 
 export async function GET(request: NextRequest) {

@@ -66,7 +66,7 @@ export function Hero() {
 
         <FloatIn direction="up" delay={0.7} className="mb-12">
           <motion.p className="text-lg sm:text-xl lg:text-2xl font-light text-white/90 max-w-2xl mx-auto mb-12 leading-relaxed">
-            {t('hero.line1')} <span className="font-medium text-amber-200">{t('hero.magic')}</span>
+            {t('hero.line1')} <span className="font-medium text-amber-200">{t('hero.dreams')}</span>
             <br />
             {t('hero.line2')}
           </motion.p>
