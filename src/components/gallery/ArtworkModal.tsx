@@ -58,8 +58,8 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
   const localizedArtwork = localizeArtwork(artwork, locale);
-  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
-  const usdOffer = formatUsdEstimate(Number(offerAmount), usdPerEur, locale);
+  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur);
+  const usdOffer = formatUsdEstimate(Number(offerAmount), usdPerEur);
 
   const handlePurchase = async () => {
     const numericOffer = Number(offerAmount);
@@ -276,7 +276,7 @@ export function ArtworkModal({ artwork, isOpen, onClose, onPurchase }: ArtworkMo
                       {Object.entries(SHIPPING_ZONES).map(([key, zone]) => (
                         <option key={key} value={key}>
                           {t(`shipping.${key}` as 'shipping.france' | 'shipping.eu' | 'shipping.world')} — {formatPrice(zone.priceCents / 100, locale)}
-                          {usdPerEur ? ` (${t('currency.approxShort', { amount: formatUsdEstimate(zone.priceCents / 100, usdPerEur, locale) ?? '' })})` : ''}
+                          {usdPerEur ? ` (${t('currency.approxShort', { amount: formatUsdEstimate(zone.priceCents / 100, usdPerEur) ?? '' })})` : ''}
                         </option>
                       ))}
                     </select>

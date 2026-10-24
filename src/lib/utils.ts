@@ -15,15 +15,13 @@ export function formatPrice(price: number, locale: SiteLocale = 'fr'): string {
   }).format(price);
 }
 
-export function formatUsdEstimate(euroAmount: number, usdPerEur: number | null, locale: SiteLocale): string | null {
+export function formatUsdEstimate(euroAmount: number, usdPerEur: number | null): string | null {
   if (!usdPerEur || !Number.isFinite(euroAmount) || !Number.isFinite(usdPerEur)) return null;
   const roundedDollars = Math.round(euroAmount * usdPerEur);
-  const numberLocale = locale === 'fr' ? 'fr-FR' : locale === 'de' ? 'de-DE' : 'en-US';
-  return new Intl.NumberFormat(numberLocale, {
-    style: 'currency',
-    currency: 'USD',
+  const formattedAmount = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0,
   }).format(roundedDollars);
+  return `$${formattedAmount} USD`;
 }
 
 export function formatDimensions(artwork: { width: number; height: number; depth?: number }): string {

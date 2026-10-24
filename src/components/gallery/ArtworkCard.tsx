@@ -19,7 +19,7 @@ export function ArtworkCard({ artwork, index, onClick }: ArtworkCardProps) {
   const localizedArtwork = localizeArtwork(artwork, locale);
   const isSold = artwork.status === 'sold';
   const isReserved = artwork.status === 'reserved';
-  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur, locale);
+  const usdMinimum = formatUsdEstimate(artwork.price, usdPerEur);
 
   return (
     <motion.article

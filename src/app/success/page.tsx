@@ -46,7 +46,7 @@ async function SuccessDetails({ searchParams }: SuccessPageProps) {
       if (Number.isSafeInteger(offerAmountCents) && offerAmountCents > 0) {
         offerAmount = formatPrice(offerAmountCents / 100, locale);
         const usdPerEur = Number(session.metadata?.usdPerEur);
-        usdOfferAmount = formatUsdEstimate(offerAmountCents / 100, usdPerEur, locale);
+        usdOfferAmount = formatUsdEstimate(offerAmountCents / 100, usdPerEur);
       }
     } catch (error) {
       console.error('Impossible de vérifier la session Stripe:', error);
